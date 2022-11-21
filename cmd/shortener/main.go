@@ -14,7 +14,7 @@ type InfoMessage struct {
 }
 
 type PostLongURL struct {
-	Url string `json:"url"`
+	URL string `json:"url"`
 }
 
 var counter int
@@ -80,7 +80,7 @@ func putURL(w http.ResponseWriter, r *http.Request) {
 	counter++
 	res := strconv.Itoa(counter)
 
-	UrlsMap[res] = req.Url
+	UrlsMap[res] = req.URL
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(res))
