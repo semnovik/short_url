@@ -30,6 +30,7 @@ func FirstPage(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := http.NewServeMux()
 	router.HandleFunc("/", FirstPage)
+
 	// конструируем сервер
 	server := &http.Server{
 		Addr:    ":8080",
@@ -44,6 +45,7 @@ func main() {
 func GetURLByID(w http.ResponseWriter, r *http.Request) {
 	idRow := strings.Trim(r.URL.Path, "/")
 	log.Printf("got GetURLByID request: " + idRow)
+
 	URL, ok := UrlsMap[idRow]
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
@@ -63,11 +65,12 @@ func PostURL(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 	}
 
-	log.Printf("got request with body: " + string(req))
+	log.Printf("got PostURL request: " + string(req))
 
 	counter++
 	res := strconv.Itoa(counter)
 	UrlsMap[res] = string(req)
+
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("http://localhost:8080/" + res))
