@@ -13,10 +13,6 @@ type InfoMessage struct {
 	Message string `json:"message"`
 }
 
-type PostLongURL struct {
-	URL string `json:"url"`
-}
-
 var counter int
 var UrlsMap = make(map[string]string)
 
@@ -25,9 +21,9 @@ func FirstPage(w http.ResponseWriter, r *http.Request) {
 	case r.Method == http.MethodGet:
 		GetURLByID(w, r)
 	case r.Method == http.MethodPost:
-		PostUrl(w, r)
+		PostURL(w, r)
 	default:
-		notFound(w, r)
+		NotFound(w, r)
 	}
 }
 
@@ -49,6 +45,7 @@ func GetURLByID(w http.ResponseWriter, r *http.Request) {
 	idRow := strings.Trim(r.URL.Path, "/")
 	checkIn, ok := UrlsMap[idRow]
 	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("there is no url with that id"))
 		return
 	}
@@ -56,21 +53,14 @@ func GetURLByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 	w.Header().Set("Location", checkIn)
 	w.WriteHeader(http.StatusTemporaryRedirect)
-
-	msg := InfoMessage{Message: "Success"}
-
-	resp, err := json.Marshal(msg)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
-	w.Write(resp)
+	w.Write([]byte(""))
 }
 
-func PostUrl(w http.ResponseWriter, r *http.Request) {
+func PostURL(w http.ResponseWriter, r *http.Request) {
 	req, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		log.Printf("error occured while reading the PostUrl request body: %s", err.Error())
+		log.Printf("error occured while reading the PostURL request body: %s", err.Error())
 		http.Error(w, err.Error(), 500)
 	}
 
@@ -85,7 +75,7 @@ func PostUrl(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(res))
 }
 
-func notFound(w http.ResponseWriter, r *http.Request) {
+func NotFound(w http.ResponseWriter, r *http.Request) {
 
 	msg := InfoMessage{Message: "Method not found"}
 	res, err := json.Marshal(msg)
