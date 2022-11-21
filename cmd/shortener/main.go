@@ -23,9 +23,9 @@ var UrlsMap = make(map[string]string)
 func FirstPage(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == http.MethodGet:
-		getURLByID(w, r)
+		GetURLByID(w, r)
 	case r.Method == http.MethodPost:
-		putURL(w, r)
+		PostUrl(w, r)
 	default:
 		notFound(w, r)
 	}
@@ -45,7 +45,7 @@ func main() {
 	}
 }
 
-func getURLByID(w http.ResponseWriter, r *http.Request) {
+func GetURLByID(w http.ResponseWriter, r *http.Request) {
 	idRow := strings.Trim(r.URL.Path, "/")
 	checkIn, ok := UrlsMap[idRow]
 	if !ok {
@@ -66,21 +66,20 @@ func getURLByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-func putURL(w http.ResponseWriter, r *http.Request) {
-	req := PostLongURL{}
-	body, err := io.ReadAll(r.Body)
+func PostUrl(w http.ResponseWriter, r *http.Request) {
+	req, err := io.ReadAll(r.Body)
+
 	if err != nil {
+		log.Printf("error occured while reading the PostUrl request body: %s", err.Error())
 		http.Error(w, err.Error(), 500)
 	}
-	err = json.Unmarshal(body, &req)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
+
+	log.Printf("got request with body:" + string(req))
 
 	counter++
 	res := strconv.Itoa(counter)
 
-	UrlsMap[res] = req.URL
+	UrlsMap[res] = string(req)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(res))
