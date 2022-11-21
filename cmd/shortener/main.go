@@ -43,17 +43,16 @@ func main() {
 
 func GetURLByID(w http.ResponseWriter, r *http.Request) {
 	idRow := strings.Trim(r.URL.Path, "/")
-	checkIn, ok := UrlsMap[idRow]
+	log.Printf("got GetURLByID request: " + idRow)
+	URL, ok := UrlsMap[idRow]
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("there is no url with that id"))
 		return
 	}
 
-	w.Header().Set("content-type", "application/json")
-	w.Header().Set("Location", checkIn)
+	w.Header().Set("Location", URL)
 	w.WriteHeader(http.StatusTemporaryRedirect)
-	w.Write([]byte(""))
 }
 
 func PostURL(w http.ResponseWriter, r *http.Request) {
@@ -64,15 +63,14 @@ func PostURL(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 	}
 
-	log.Printf("got request with body:" + string(req))
+	log.Printf("got request with body: " + string(req))
 
 	counter++
 	res := strconv.Itoa(counter)
-
 	UrlsMap[res] = string(req)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(res))
+	w.Write([]byte("http://localhost:8080/" + res))
 }
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
