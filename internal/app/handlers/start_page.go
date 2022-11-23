@@ -3,19 +3,17 @@ package handlers
 import (
 	"io"
 	"net/http"
-	"short_url/internal/app/server"
-	"strconv"
 	"strings"
 )
 
-func startPage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) startPage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 
 	switch {
 	case r.Method == http.MethodGet:
 		urlID := strings.Trim(r.URL.Path, "/")
 
-		URL, err := server.GetURLByID(urlID)
+		URL, err := h.Server.GetURLByID(urlID)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -32,10 +30,10 @@ func startPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		urlID := server.PostURL(string(request))
+		urlID := h.Server.PostURL(string(request))
 
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("http://localhost:8080/" + strconv.Itoa(urlID)))
+		w.Write([]byte("http://localhost:8080/" + urlID))
 
 	default:
 		http.Error(w, "Method not found", http.StatusBadRequest)

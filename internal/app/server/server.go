@@ -7,18 +7,30 @@ import (
 	"strconv"
 )
 
-func PostURL(url string) int {
+//type Server interface {
+//
+//}
+
+type Server struct {
+	Repository *storage.URLRepo
+}
+
+func NewServer(repo *storage.URLRepo) *Server {
+	return &Server{
+		Repository: repo,
+	}
+}
+
+func (s *Server) PostURL(url string) string {
 
 	log.Print("got PostURL request: " + url)
 
-	storage.URLRepo = append(storage.URLRepo, url)
-
-	urlID := len(storage.URLRepo)
+	urlID := strconv.Itoa(s.Repository.AddURL(url))
 
 	return urlID
 }
 
-func GetURLByID(urlID string) (string, error) {
+func (s *Server) GetURLByID(urlID string) (string, error) {
 	log.Printf("got GetURLByID request: " + urlID)
 
 	if urlID == "" {
@@ -30,11 +42,10 @@ func GetURLByID(urlID string) (string, error) {
 		return "", errors.New("something went wrong")
 	}
 
-	if id > len(storage.URLRepo) || id <= 0 {
-		return "", errors.New("url with id:" + urlID + " is not found")
+	URL, err := s.Repository.GetURL(id)
+	if err != nil {
+		return "", err
 	}
-
-	URL := storage.URLRepo[id-1]
 
 	return URL, nil
 }
