@@ -11,9 +11,9 @@ func PostURL(url string) int {
 
 	log.Print("got PostURL request: " + url)
 
-	storage.UrlRepo = append(storage.UrlRepo, url)
+	storage.URLRepo = append(storage.URLRepo, url)
 
-	urlID := len(storage.UrlRepo)
+	urlID := len(storage.URLRepo)
 
 	return urlID
 }
@@ -30,11 +30,11 @@ func GetURLByID(urlID string) (string, error) {
 		return "", errors.New("something went wrong")
 	}
 
-	if id > len(storage.UrlRepo) || id <= 0 {
+	if id > len(storage.URLRepo) || id <= 0 {
 		return "", errors.New("url with id:" + urlID + " is not found")
 	}
 
-	URL := storage.UrlRepo[id-1]
+	URL := storage.URLRepo[id-1]
 
 	return URL, nil
 }
