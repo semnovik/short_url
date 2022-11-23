@@ -7,17 +7,32 @@ import (
 	"strconv"
 )
 
-type Server struct {
+type ShorterService interface {
+	PostURL(url string) string
+	GetURLByID(urlID string) (string, error)
+}
+
+type Shorter struct {
 	Repository *storage.Repository
+}
+
+type Server struct {
+	ShorterService
 }
 
 func NewServer(repos *storage.Repository) *Server {
 	return &Server{
+		ShorterService: NewShorter(repos),
+	}
+}
+
+func NewShorter(repos *storage.Repository) *Shorter {
+	return &Shorter{
 		Repository: repos,
 	}
 }
 
-func (s *Server) PostURL(url string) string {
+func (s *Shorter) PostURL(url string) string {
 
 	log.Print("got PostURL request: " + url)
 
@@ -26,7 +41,7 @@ func (s *Server) PostURL(url string) string {
 	return urlID
 }
 
-func (s *Server) GetURLByID(urlID string) (string, error) {
+func (s *Shorter) GetURLByID(urlID string) (string, error) {
 	log.Printf("got GetURLByID request: " + urlID)
 
 	if urlID == "" {
