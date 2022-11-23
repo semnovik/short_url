@@ -1,3 +1,3 @@
 package storage
 
-var UrlRepo []string
+var URLRepo []string
