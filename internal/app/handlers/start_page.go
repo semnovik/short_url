@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"short_url/internal/app/server"
+	"strconv"
 	"strings"
 )
 
@@ -34,7 +35,7 @@ func startPage(w http.ResponseWriter, r *http.Request) {
 		urlID := server.PostURL(string(request))
 
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("http://localhost:8080/" + urlID))
+		w.Write([]byte("http://localhost:8080/" + strconv.Itoa(urlID)))
 
 	default:
 		http.Error(w, "Method not found", http.StatusBadRequest)

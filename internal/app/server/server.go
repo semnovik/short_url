@@ -7,12 +7,13 @@ import (
 	"strconv"
 )
 
-func PostURL(url string) string {
+func PostURL(url string) int {
 
 	log.Print("got PostURL request: " + url)
 
-	urlID := strconv.Itoa(storage.Counter + 1)
-	storage.UrlsMap[urlID] = url
+	storage.UrlRepo = append(storage.UrlRepo, url)
+
+	urlID := len(storage.UrlRepo)
 
 	return urlID
 }
@@ -24,10 +25,16 @@ func GetURLByID(urlID string) (string, error) {
 		return "", errors.New("id of url isn't set")
 	}
 
-	URL, ok := storage.UrlsMap[urlID]
-	if !ok {
+	id, err := strconv.Atoi(urlID)
+	if err != nil {
+		return "", errors.New("something went wrong")
+	}
+
+	if id > len(storage.UrlRepo) || id <= 0 {
 		return "", errors.New("url with id:" + urlID + " is not found")
 	}
+
+	URL := storage.UrlRepo[id-1]
 
 	return URL, nil
 }
