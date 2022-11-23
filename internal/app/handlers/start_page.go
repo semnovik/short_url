@@ -3,7 +3,7 @@ package handlers
 import (
 	"io"
 	"net/http"
-	"short_url/internal/server"
+	"short_url/internal/app/server"
 	"strings"
 )
 

@@ -3,7 +3,7 @@ package server
 import (
 	"errors"
 	"log"
-	"short_url/internal/storage"
+	"short_url/internal/app/storage"
 	"strconv"
 )
 

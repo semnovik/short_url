@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
-	"short_url/internal/handlers"
+	"short_url/internal/app/handlers"
 )
 
 func main() {
