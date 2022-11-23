@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 	"short_url/internal/server"
@@ -38,19 +37,6 @@ func startPage(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("http://localhost:8080/" + urlID))
 
 	default:
-		NotFound(w, r)
+		http.Error(w, "Method not found", http.StatusBadRequest)
 	}
-}
-
-func NotFound(w http.ResponseWriter, r *http.Request) {
-
-	msg := InfoMessage{Message: "Method not found"}
-	res, err := json.Marshal(msg)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
-
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
-	w.Write(res)
 }
