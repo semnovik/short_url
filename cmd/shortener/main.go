@@ -10,7 +10,9 @@ import (
 
 func main() {
 
-	Repository := storage.NewURLRepo()
+	var URLStorage []string
+
+	Repository := storage.NewRepository(URLStorage)
 	Server := server.NewServer(Repository)
 	Handler := handlers.NewHandler(Server)
 

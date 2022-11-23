@@ -7,17 +7,13 @@ import (
 	"strconv"
 )
 
-//type Server interface {
-//
-//}
-
 type Server struct {
-	Repository *storage.URLRepo
+	Repository *storage.Repository
 }
 
-func NewServer(repo *storage.URLRepo) *Server {
+func NewServer(repos *storage.Repository) *Server {
 	return &Server{
-		Repository: repo,
+		Repository: repos,
 	}
 }
 

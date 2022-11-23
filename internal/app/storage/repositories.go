@@ -2,12 +2,27 @@ package storage
 
 import "errors"
 
+type SliceRepo interface {
+	AddURL(url string) int
+	GetURL(id int) (string, error)
+}
+
 type URLRepo struct {
 	URLs []string
 }
 
-func NewURLRepo() *URLRepo {
-	return &URLRepo{URLs: []string{}}
+type Repository struct {
+	SliceRepo
+}
+
+func NewRepository(storage []string) *Repository {
+	return &Repository{
+		SliceRepo: NewURLRepo(storage),
+	}
+}
+
+func NewURLRepo(storage []string) *URLRepo {
+	return &URLRepo{URLs: storage}
 }
 
 func (r *URLRepo) AddURL(url string) int {
