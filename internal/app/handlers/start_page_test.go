@@ -73,6 +73,7 @@ func TestStartPagePostURL(t *testing.T) {
 			resp := w.Result()
 
 			respBody, err := io.ReadAll(resp.Body)
+			defer resp.Body.Close()
 			require.NoError(t, err)
 
 			require.Equal(t, test.want.statusCode, resp.StatusCode)
