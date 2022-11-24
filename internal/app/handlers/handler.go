@@ -2,14 +2,14 @@ package handlers
 
 import (
 	"net/http"
-	"short_url/internal/app/server"
+	"short_url/internal/app/service"
 )
 
 type Handler struct {
-	Server *server.Server
+	Server *service.Server
 }
 
-func NewHandler(server *server.Server) *Handler {
+func NewHandler(server *service.Server) *Handler {
 	return &Handler{Server: server}
 }
 

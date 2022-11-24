@@ -7,8 +7,6 @@ import (
 )
 
 func (h *Handler) startPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-type", "application/json")
-
 	switch {
 	case r.Method == http.MethodGet:
 		urlID := strings.Trim(r.URL.Path, "/")
@@ -36,6 +34,6 @@ func (h *Handler) startPage(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("http://localhost:8080/" + urlID))
 
 	default:
-		http.Error(w, "Method not found", http.StatusBadRequest)
+		http.Error(w, `Method not found`, http.StatusBadRequest)
 	}
 }

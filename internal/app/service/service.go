@@ -1,9 +1,9 @@
-package server
+package service
 
 import (
 	"errors"
 	"log"
-	"short_url/internal/app/storage"
+	"short_url/internal/app/repository"
 	"strconv"
 )
 
@@ -13,20 +13,20 @@ type ShorterService interface {
 }
 
 type Shorter struct {
-	Repository *storage.Repository
+	Repository *repository.Repository
 }
 
 type Server struct {
 	ShorterService
 }
 
-func NewServer(repos *storage.Repository) *Server {
+func NewServer(repos *repository.Repository) *Server {
 	return &Server{
 		ShorterService: NewShorter(repos),
 	}
 }
 
-func NewShorter(repos *storage.Repository) *Shorter {
+func NewShorter(repos *repository.Repository) *Shorter {
 	return &Shorter{
 		Repository: repos,
 	}
