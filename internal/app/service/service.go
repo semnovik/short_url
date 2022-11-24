@@ -1,10 +1,7 @@
 package service
 
 import (
-	"errors"
-	"log"
 	"short_url/internal/app/repository"
-	"strconv"
 )
 
 type ShorterService interface {
@@ -12,51 +9,12 @@ type ShorterService interface {
 	GetURLByID(urlID string) (string, error)
 }
 
-type Shorter struct {
-	Repository *repository.Repository
-}
-
-type Server struct {
+type Service struct {
 	ShorterService
 }
 
-func NewServer(repos *repository.Repository) *Server {
-	return &Server{
+func NewServer(repos *repository.Repository) *Service {
+	return &Service{
 		ShorterService: NewShorter(repos),
 	}
-}
-
-func NewShorter(repos *repository.Repository) *Shorter {
-	return &Shorter{
-		Repository: repos,
-	}
-}
-
-func (s *Shorter) PostURL(url string) string {
-
-	log.Print("got PostURL request: " + url)
-
-	urlID := strconv.Itoa(s.Repository.Add(url))
-
-	return urlID
-}
-
-func (s *Shorter) GetURLByID(urlID string) (string, error) {
-	log.Printf("got GetURLByID request: " + urlID)
-
-	if urlID == "" {
-		return "", errors.New("id of url isn't set")
-	}
-
-	id, err := strconv.Atoi(urlID)
-	if err != nil {
-		return "", errors.New("something went wrong")
-	}
-
-	URL, err := s.Repository.Get(id)
-	if err != nil {
-		return "", err
-	}
-
-	return URL, nil
 }
