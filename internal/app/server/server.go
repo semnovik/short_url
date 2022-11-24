@@ -36,7 +36,7 @@ func (s *Shorter) PostURL(url string) string {
 
 	log.Print("got PostURL request: " + url)
 
-	urlID := strconv.Itoa(s.Repository.AddURL(url))
+	urlID := strconv.Itoa(s.Repository.Add(url))
 
 	return urlID
 }
@@ -53,7 +53,7 @@ func (s *Shorter) GetURLByID(urlID string) (string, error) {
 		return "", errors.New("something went wrong")
 	}
 
-	URL, err := s.Repository.GetURL(id)
+	URL, err := s.Repository.Get(id)
 	if err != nil {
 		return "", err
 	}
