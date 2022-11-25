@@ -160,8 +160,10 @@ func TestHandler_StartPage_MethodPost(t *testing.T) {
 			res := w.Result()
 
 			resBody, err := io.ReadAll(res.Body)
-			assert.NoError(t, err)
+			res.Body.Close()
+
 			// Сравнение фактических результатов с ожидаемыми
+			assert.NoError(t, err)
 			assert.Equal(t, test.want.StatusCode, res.StatusCode)
 			assert.Equal(t, test.want.Response, string(resBody))
 		})
@@ -209,6 +211,8 @@ func TestHandler_StartPage(t *testing.T) {
 			res := w.Result()
 
 			resBody, err := io.ReadAll(res.Body)
+			res.Body.Close()
+
 			assert.NoError(t, err)
 			assert.Equal(t, test.want.StatusCode, res.StatusCode)
 			assert.Equal(t, test.want.Response, string(resBody))
