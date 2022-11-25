@@ -22,8 +22,10 @@ func (h *Handler) startPage(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTemporaryRedirect)
 
 	case r.Method == http.MethodPost:
+		defer r.Body.Close()
+
 		request, err := io.ReadAll(r.Body)
-		if err != nil || r.Body == nil {
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
