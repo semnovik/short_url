@@ -1,30 +1,55 @@
 package service
 
 import (
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"short_url/internal/app/repository"
+	mock_repository "short_url/internal/app/repository/mocks"
 	"testing"
 )
 
 func TestShorter_PostURL(t *testing.T) {
+	type mockBehavior func(r *mock_repository.MockURLRepo, url string)
 
 	type testCase struct {
 		name string
 		send string
 		want string
-		repo *repository.Repository
+		repo mockBehavior
 	}
 
 	tests := []testCase{
-		{name: "Simple positive", send: "http://google.com", want: "1", repo: repository.NewRepository([]string{})},
-		{name: "Empty id", send: "", want: "1", repo: repository.NewRepository([]string{})},
-		{name: "Repo is not empty", send: "http://google.com", want: "2", repo: repository.NewRepository([]string{"http://some.com"})},
+		{
+			name: "Simple positive",
+			send: "http://google.com",
+			want: "123",
+			repo: func(r *mock_repository.MockURLRepo, url string) {
+				r.EXPECT().Add(url).Return(123)
+			},
+		},
+		{
+			name: "Empty id",
+			send: "",
+			want: "1",
+			repo: func(r *mock_repository.MockURLRepo, url string) {
+				r.EXPECT().Add(url).Return(1)
+			},
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			service := Service{NewServer(test.repo)}
+
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			urlRepo := mock_repository.NewMockURLRepo(c)
+			test.repo(urlRepo, test.send)
+
+			repo := &repository.Repository{URLRepo: urlRepo}
+			service := NewShorter(repo)
+
 			want := service.PostURL(test.send)
 			require.Equal(t, test.want, want)
 		})
