@@ -11,7 +11,7 @@ func (h *Handler) startPage(w http.ResponseWriter, r *http.Request) {
 	case r.Method == http.MethodGet:
 		urlID := strings.Trim(r.URL.Path, "/")
 
-		URL, err := h.Server.GetURLByID(urlID)
+		URL, err := h.Service.GetURLByID(urlID)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -28,7 +28,7 @@ func (h *Handler) startPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		urlID := h.Server.PostURL(string(request))
+		urlID := h.Service.PostURL(string(request))
 
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte("http://localhost:8080/" + urlID))
