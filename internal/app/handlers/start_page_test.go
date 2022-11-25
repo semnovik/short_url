@@ -81,6 +81,7 @@ func TestHandler_StartPage_MethodGet(t *testing.T) {
 			// Выполнение запроса и получение результатов
 			handler.startPage(w, req)
 			res := w.Result()
+			defer res.Body.Close()
 
 			// Сравнение фактических результатов с ожидаемыми
 			assert.Equal(t, test.want.StatusCode, res.StatusCode)
@@ -160,7 +161,7 @@ func TestHandler_StartPage_MethodPost(t *testing.T) {
 			res := w.Result()
 
 			resBody, err := io.ReadAll(res.Body)
-			res.Body.Close()
+			defer res.Body.Close()
 
 			// Сравнение фактических результатов с ожидаемыми
 			assert.NoError(t, err)
@@ -211,7 +212,7 @@ func TestHandler_StartPage(t *testing.T) {
 			res := w.Result()
 
 			resBody, err := io.ReadAll(res.Body)
-			res.Body.Close()
+			defer res.Body.Close()
 
 			assert.NoError(t, err)
 			assert.Equal(t, test.want.StatusCode, res.StatusCode)
