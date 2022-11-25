@@ -46,6 +46,8 @@ func TestShorter_GetURLByID(t *testing.T) {
 		{name: "Simple positive", send: "1", want: "http://google.com", wantErr: false, repo: repository.NewRepository([]string{"http://google.com"})},
 		{name: "More than one url in repo", send: "2", want: "http://yandex.com", wantErr: false, repo: repository.NewRepository([]string{"http://google.com", "http://yandex.com"})},
 		{name: "Not found", send: "123", want: "", wantErr: true, repo: repository.NewRepository([]string{"http://google.com"})},
+		{name: "symbols in id", send: "qwert", want: "", wantErr: true, repo: repository.NewRepository([]string{"http://google.com"})},
+		{name: "id isn't set", send: "", want: "", wantErr: true, repo: repository.NewRepository([]string{"http://google.com"})},
 	}
 
 	for _, test := range tests {
@@ -54,7 +56,7 @@ func TestShorter_GetURLByID(t *testing.T) {
 			got, err := service.GetURLByID(test.send)
 
 			if test.wantErr == true {
-				require.NotNil(t, err)
+				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}
