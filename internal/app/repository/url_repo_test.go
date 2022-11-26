@@ -48,13 +48,13 @@ func TestRepoURL_Get(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			gotUrl, err := test.repo.Get(test.sendID)
+			gotURL, err := test.repo.Get(test.sendID)
 			if test.wantErr {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
 			}
-			require.Equal(t, test.wantURL, gotUrl)
+			require.Equal(t, test.wantURL, gotURL)
 		})
 	}
 }
