@@ -99,7 +99,7 @@ func TestShorter_GetURLByID(t *testing.T) {
 			},
 		},
 		{
-			name:    "id is 0",
+			name:    "id is zero",
 			send:    0,
 			want:    "",
 			wantErr: true,
