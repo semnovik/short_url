@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"short_url/internal/app/service"
 )
@@ -14,8 +15,10 @@ func NewHandler(service *service.Service) *Handler {
 }
 
 func (h *Handler) InitRouter() http.Handler {
-	router := http.NewServeMux()
-	router.HandleFunc("/", h.startPage)
+	router := chi.NewRouter()
+
+	router.Get("/{id}", h.GetFullURL)
+	router.Post("/", h.SendURL)
 
 	return router
 }

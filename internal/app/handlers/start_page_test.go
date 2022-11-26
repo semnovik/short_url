@@ -5,18 +5,15 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
-	"short_url/internal/app/repository"
 	"short_url/internal/app/service"
 	mock_service "short_url/internal/app/service/mocks"
 	"strings"
 	"testing"
 )
 
-func TestHandler_StartPage_MethodGet(t *testing.T) {
+func TestHandler_GetFullURL(t *testing.T) {
 	type mockBehavior func(s *mock_service.MockShorterService, id string)
 
 	type want struct {
@@ -35,8 +32,8 @@ func TestHandler_StartPage_MethodGet(t *testing.T) {
 		{
 			name:    "happy pass",
 			method:  http.MethodGet,
-			path:    "/",
-			request: "1",
+			path:    "/1",
+			request: "",
 			mockBehavior: func(s *mock_service.MockShorterService, id string) {
 				s.EXPECT().GetURLByID(id).Return("http://google.com", nil)
 			},
@@ -48,8 +45,8 @@ func TestHandler_StartPage_MethodGet(t *testing.T) {
 		{
 			name:    "error occurring",
 			method:  http.MethodGet,
-			path:    "/",
-			request: "qwerty",
+			path:    "/qwerty\"",
+			request: "",
 			mockBehavior: func(s *mock_service.MockShorterService, id string) {
 				s.EXPECT().GetURLByID(id).Return("", errors.New("something went wrong"))
 			},
@@ -79,7 +76,7 @@ func TestHandler_StartPage_MethodGet(t *testing.T) {
 			req := httptest.NewRequest(test.method, test.path+test.request, nil)
 
 			// Выполнение запроса и получение результатов
-			handler.startPage(w, req)
+			handler.GetFullURL(w, req)
 			res := w.Result()
 			defer res.Body.Close()
 
@@ -90,7 +87,7 @@ func TestHandler_StartPage_MethodGet(t *testing.T) {
 	}
 }
 
-func TestHandler_StartPage_MethodPost(t *testing.T) {
+func TestHandler_SendURL(t *testing.T) {
 	type mockBehavior func(s *mock_service.MockShorterService, url string)
 
 	type want struct {
@@ -157,7 +154,7 @@ func TestHandler_StartPage_MethodPost(t *testing.T) {
 			req := httptest.NewRequest(test.method, test.path, strings.NewReader(test.requestBody))
 
 			// Выполнение запроса и получение результатов
-			handler.startPage(w, req)
+			handler.SendURL(w, req)
 			res := w.Result()
 
 			resBody, err := io.ReadAll(res.Body)
@@ -171,56 +168,56 @@ func TestHandler_StartPage_MethodPost(t *testing.T) {
 	}
 }
 
-func TestHandler_StartPage(t *testing.T) {
-
-	type want struct {
-		StatusCode int
-		Response   string
-	}
-
-	tests := []struct {
-		name   string
-		path   string
-		method string
-		body   any
-		want   want
-	}{
-		{
-			name:   "wrong method",
-			path:   "/",
-			method: http.MethodPut,
-			body:   "",
-			want:   want{StatusCode: http.StatusBadRequest, Response: "Method not found\n"},
-		},
-		{
-			name:   "error while reading body",
-			path:   "/",
-			method: http.MethodPost,
-			want:   want{StatusCode: http.StatusInternalServerError, Response: "reader error\n"},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-
-			hadler := Handler{Service: service.NewServer(repository.NewRepository([]string{}))}
-
-			w := httptest.NewRecorder()
-
-			req := httptest.NewRequest(test.method, test.path, errReader(0))
-			hadler.startPage(w, req)
-			res := w.Result()
-
-			resBody, err := io.ReadAll(res.Body)
-			defer res.Body.Close()
-
-			assert.NoError(t, err)
-			assert.Equal(t, test.want.StatusCode, res.StatusCode)
-			assert.Equal(t, test.want.Response, string(resBody))
-			log.Print(reflect.TypeOf(req.Body))
-		})
-	}
-}
+//func TestHandler_Negative(t *testing.T) {
+//
+//	type want struct {
+//		StatusCode int
+//		Response   string
+//	}
+//
+//	tests := []struct {
+//		name   string
+//		path   string
+//		method string
+//		body   any
+//		want   want
+//	}{
+//		{
+//			name:   "wrong method",
+//			path:   "/",
+//			method: http.MethodPut,
+//			body:   "",
+//			want:   want{StatusCode: http.StatusBadRequest, Response: "Method not found\n"},
+//		},
+//		{
+//			name:   "error while reading body",
+//			path:   "/",
+//			method: http.MethodPost,
+//			want:   want{StatusCode: http.StatusInternalServerError, Response: "reader error\n"},
+//		},
+//	}
+//
+//	for _, test := range tests {
+//		t.Run(test.name, func(t *testing.T) {
+//
+//			hadler := Handler{Service: service.NewServer(repository.NewRepository([]string{}))}
+//
+//			w := httptest.NewRecorder()
+//
+//			req := httptest.NewRequest(test.method, test.path, errReader(0))
+//			hadler.SendURL(w, req)
+//			res := w.Result()
+//
+//			resBody, err := io.ReadAll(res.Body)
+//			defer res.Body.Close()
+//
+//			assert.NoError(t, err)
+//			assert.Equal(t, test.want.StatusCode, res.StatusCode)
+//			assert.Equal(t, test.want.Response, string(resBody))
+//			log.Print(reflect.TypeOf(req.Body))
+//		})
+//	}
+//}
 
 // Тестовые артефакты
 type errReader int
