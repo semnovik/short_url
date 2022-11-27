@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"log"
 	"short_url/internal/app/repository"
 	"strconv"
 )
@@ -19,15 +18,12 @@ func NewShorter(repos *repository.Repository) *Shorter {
 
 func (s *Shorter) PostURL(url string) string {
 
-	log.Print("got PostURL request: " + url)
-
 	urlID := strconv.Itoa(s.Repository.Add(url))
 
 	return urlID
 }
 
 func (s *Shorter) GetURLByID(urlID string) (string, error) {
-	log.Printf("got GetURLByID request: " + urlID)
 
 	if urlID == "" {
 		return "", errors.New("id of url isn't set")
