@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/spf13/viper"
 	"log"
 	"net/http"
 	"short_url/internal/app/handlers"
@@ -10,14 +11,24 @@ import (
 
 func main() {
 
+	if err := InitConfig(); err != nil {
+		log.Fatal("error with reading config", err)
+	}
+
 	var URLStorage []string
 
 	Repository := repository.NewRepository(URLStorage)
 	Server := service.NewServer(Repository)
 	Handler := handlers.NewHandler(Server)
 
-	err := http.ListenAndServe(":8080", Handler.InitRouter())
+	err := http.ListenAndServe(viper.GetString("app.port"), Handler.InitRouter())
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func InitConfig() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }
