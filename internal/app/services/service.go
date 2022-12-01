@@ -13,7 +13,7 @@ type Service struct {
 	ShorterService
 }
 
-func NewServer(repos *repositories.Repository) *Service {
+func NewService(repos *repositories.Repository) *Service {
 	return &Service{
 		ShorterService: NewShorter(repos),
 	}
