@@ -1,9 +1,5 @@
 package services
 
-import (
-	"short_url/internal/app/repositories"
-)
-
 type ShorterService interface {
 	PostURL(url string) string
 	GetURLByID(urlID string) (string, error)
@@ -13,8 +9,8 @@ type Service struct {
 	ShorterService
 }
 
-func NewService(repos *repositories.Repository) *Service {
+func NewService(shorter *Shorter) *Service {
 	return &Service{
-		ShorterService: NewShorter(repos),
+		ShorterService: shorter,
 	}
 }

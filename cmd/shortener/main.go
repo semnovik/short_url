@@ -16,7 +16,8 @@ func main() {
 	}
 
 	repository := repositories.NewRepository()
-	service := services.NewService(repository)
+	shorter := services.NewShorter(repository)
+	service := services.NewService(shorter)
 	handler := handlers.NewHandler(service)
 
 	err := http.ListenAndServe(viper.GetString("app.port"), handler.InitRouter())
