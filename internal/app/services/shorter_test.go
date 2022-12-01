@@ -1,12 +1,12 @@
-package service
+package services
 
 import (
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"short_url/internal/app/repository"
-	mock_repository "short_url/internal/app/repository/mocks"
+	"short_url/internal/app/repositories"
+	mock_repository "short_url/internal/app/repositories/mocks"
 	"strconv"
 	"testing"
 )
@@ -49,7 +49,7 @@ func TestShorter_PostURL(t *testing.T) {
 			urlRepo := mock_repository.NewMockURLRepo(c)
 			test.repo(urlRepo, test.send)
 
-			repo := &repository.Repository{URLRepo: urlRepo}
+			repo := &repositories.Repository{URLRepo: urlRepo}
 			service := NewShorter(repo)
 
 			want := service.PostURL(test.send)
@@ -117,7 +117,7 @@ func TestShorter_GetURLByID(t *testing.T) {
 			urlRepo := mock_repository.NewMockURLRepo(c)
 			test.repo(urlRepo, test.send)
 
-			repo := &repository.Repository{URLRepo: urlRepo}
+			repo := &repositories.Repository{URLRepo: urlRepo}
 
 			service := &Service{NewShorter(repo)}
 			got, err := service.GetURLByID(strconv.Itoa(test.send))

@@ -4,14 +4,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
-	"short_url/internal/app/service"
+	"short_url/internal/app/services"
 )
 
 type Handler struct {
-	Service *service.Service
+	Service *services.Service
 }
 
-func NewHandler(service *service.Service) *Handler {
+func NewHandler(service *services.Service) *Handler {
 	return &Handler{Service: service}
 }
 

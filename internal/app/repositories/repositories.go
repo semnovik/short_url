@@ -1,4 +1,4 @@
-package repository
+package repositories
 
 type URLRepo interface {
 	Add(url string) (urlID int)

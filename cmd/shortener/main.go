@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	"short_url/internal/app/handlers"
-	"short_url/internal/app/repository"
-	"short_url/internal/app/service"
+	"short_url/internal/app/repositories"
+	"short_url/internal/app/services"
 )
 
 func main() {
@@ -15,11 +15,11 @@ func main() {
 		log.Fatal("error with reading config", err)
 	}
 
-	Repository := repository.NewRepository()
-	Server := service.NewServer(Repository)
-	Handler := handlers.NewHandler(Server)
+	repository := repositories.NewRepository()
+	service := services.NewServer(repository)
+	handler := handlers.NewHandler(service)
 
-	err := http.ListenAndServe(viper.GetString("app.port"), Handler.InitRouter())
+	err := http.ListenAndServe(viper.GetString("app.port"), handler.InitRouter())
 	if err != nil {
 		log.Fatal(err)
 	}

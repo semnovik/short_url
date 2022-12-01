@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"short_url/internal/app/service"
-	mock_service "short_url/internal/app/service/mocks"
+	"short_url/internal/app/services"
+	mock_service "short_url/internal/app/services/mocks"
 	"strings"
 	"testing"
 )
@@ -67,8 +67,8 @@ func TestHandler_GetFullURL(t *testing.T) {
 			shorter := mock_service.NewMockShorterService(c)
 			test.mockBehavior(shorter, test.request)
 
-			// Инициализация слоя service с моком ShorterService
-			shorterService := &service.Service{ShorterService: shorter}
+			// Инициализация слоя services с моком ShorterService
+			shorterService := &services.Service{ShorterService: shorter}
 			handler := NewHandler(shorterService)
 
 			// Инициализация тестового клиента w и запроса req
@@ -144,8 +144,8 @@ func TestHandler_SendURL(t *testing.T) {
 			shorter := mock_service.NewMockShorterService(c)
 			test.mockBehavior(shorter, test.requestBody)
 
-			// Инициализация слоя service с моком ShorterService
-			shorterService := &service.Service{ShorterService: shorter}
+			// Инициализация слоя services с моком ShorterService
+			shorterService := &services.Service{ShorterService: shorter}
 			handler := NewHandler(shorterService)
 
 			// Инициализация тестового клиента w и запроса req

@@ -1,16 +1,16 @@
-package service
+package services
 
 import (
 	"errors"
-	"short_url/internal/app/repository"
+	"short_url/internal/app/repositories"
 	"strconv"
 )
 
 type Shorter struct {
-	Repository *repository.Repository
+	Repository *repositories.Repository
 }
 
-func NewShorter(repos *repository.Repository) *Shorter {
+func NewShorter(repos *repositories.Repository) *Shorter {
 	return &Shorter{
 		Repository: repos,
 	}

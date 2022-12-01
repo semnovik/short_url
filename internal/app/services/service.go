@@ -1,7 +1,7 @@
-package service
+package services
 
 import (
-	"short_url/internal/app/repository"
+	"short_url/internal/app/repositories"
 )
 
 type ShorterService interface {
@@ -13,7 +13,7 @@ type Service struct {
 	ShorterService
 }
 
-func NewServer(repos *repository.Repository) *Service {
+func NewServer(repos *repositories.Repository) *Service {
 	return &Service{
 		ShorterService: NewShorter(repos),
 	}
