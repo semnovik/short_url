@@ -15,9 +15,9 @@ func TestRepoURL_Add(t *testing.T) {
 	}
 
 	tests := []testCase{
-		{name: "add to empty", sendURL: "http://google.com", wantID: 1, repo: NewRepository([]string{})},
-		{name: "add when some exists", sendURL: "http://google.com", wantID: 2, repo: NewRepository([]string{"some"})},
-		{name: "add empty string", sendURL: "", wantID: 1, repo: NewRepository([]string{})},
+		{name: "add to empty", sendURL: "http://google.com", wantID: 1, repo: NewURLRepo([]string{})},
+		{name: "add when some exists", sendURL: "http://google.com", wantID: 2, repo: NewURLRepo([]string{"some"})},
+		{name: "add empty string", sendURL: "", wantID: 1, repo: NewURLRepo([]string{})},
 	}
 
 	for _, test := range tests {
@@ -41,9 +41,9 @@ func TestRepoURL_Get(t *testing.T) {
 	}
 
 	tests := []testCase{
-		{name: "get existing url", sendID: 1, wantURL: "http://google.com", wantErr: false, repo: NewRepository([]string{"http://google.com"})},
-		{name: "get url, which doesn't exist ", sendID: 2, wantURL: "", wantErr: true, repo: NewRepository([]string{"http://google.com"})},
-		{name: "get second existing url", sendID: 2, wantURL: "http://google.com", wantErr: false, repo: NewRepository([]string{"ya.ru", "http://google.com"})},
+		{name: "get existing url", sendID: 1, wantURL: "http://google.com", wantErr: false, repo: NewURLRepo([]string{"http://google.com"})},
+		{name: "get url, which doesn't exist ", sendID: 2, wantURL: "", wantErr: true, repo: NewURLRepo([]string{"http://google.com"})},
+		{name: "get second existing url", sendID: 2, wantURL: "http://google.com", wantErr: false, repo: NewURLRepo([]string{"ya.ru", "http://google.com"})},
 	}
 
 	for _, test := range tests {

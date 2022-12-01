@@ -15,9 +15,7 @@ func main() {
 		log.Fatal("error with reading config", err)
 	}
 
-	var URLStorage []string
-
-	Repository := repository.NewRepository(URLStorage)
+	Repository := repository.NewRepository()
 	Server := service.NewServer(Repository)
 	Handler := handlers.NewHandler(Server)
 

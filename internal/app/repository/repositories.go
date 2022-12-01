@@ -9,8 +9,10 @@ type Repository struct {
 	URLRepo
 }
 
-func NewRepository(storage []string) *Repository {
+var urlStorage []string
+
+func NewRepository() *Repository {
 	return &Repository{
-		URLRepo: NewURLRepo(storage),
+		URLRepo: NewURLRepo(urlStorage),
 	}
 }
