@@ -20,7 +20,7 @@ func main() {
 	service := services.NewService(shorter)
 	handler := handlers.NewHandler(service)
 
-	err := http.ListenAndServe(viper.GetString("app.port"), handler.InitRouter())
+	err := http.ListenAndServe(viper.GetString("app.port"), handler)
 	if err != nil {
 		log.Fatal(err)
 	}

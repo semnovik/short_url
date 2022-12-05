@@ -11,17 +11,15 @@ type Handler struct {
 	Service *services.Service
 }
 
-func NewHandler(service *services.Service) *Handler {
-	return &Handler{Service: service}
-}
+func NewHandler(service *services.Service) http.Handler {
+	handler := &Handler{Service: service}
 
-func (h *Handler) InitRouter() http.Handler {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Logger)
 
-	router.Get("/{id}", h.GetFullURL)
-	router.Post("/", h.SendURL)
+	router.Get("/{id}", handler.GetFullURL)
+	router.Post("/", handler.SendURL)
 
 	return router
 }
