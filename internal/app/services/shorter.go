@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 	"short_url/internal/app/repositories"
-	"strconv"
 )
 
 type Shorter struct {
@@ -18,23 +17,18 @@ func NewShorter(repos *repositories.Repository) *Shorter {
 
 func (s *Shorter) PostURL(url string) string {
 
-	urlID := strconv.Itoa(s.Repository.Add(url))
+	uuid := s.Repository.URLRepo.Add(url)
 
-	return urlID
+	return uuid
 }
 
-func (s *Shorter) GetURLByID(urlID string) (string, error) {
+func (s *Shorter) GetURLByID(uuid string) (string, error) {
 
-	if urlID == "" {
+	if uuid == "" {
 		return "", errors.New("id of url isn't set")
 	}
 
-	id, err := strconv.Atoi(urlID)
-	if err != nil {
-		return "", errors.New("something went wrong")
-	}
-
-	URL, err := s.Repository.Get(id)
+	URL, err := s.Repository.Get(uuid)
 	if err != nil {
 		return "", err
 	}

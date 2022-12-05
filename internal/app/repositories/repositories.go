@@ -1,15 +1,15 @@
 package repositories
 
 type URLRepo interface {
-	Add(url string) (urlID int)
-	Get(urlID int) (url string, err error)
+	Add(url string) (uuid string)
+	Get(urlID string) (url string, err error)
 }
 
 type Repository struct {
 	URLRepo
 }
 
-var urlStorage []string
+var urlStorage = make(map[string]string)
 
 func NewRepository() *Repository {
 	return &Repository{

@@ -1,26 +1,41 @@
 package repositories
 
-import "errors"
+import (
+	"errors"
+	"math/rand"
+	"time"
+)
 
 type RepoURL struct {
-	URLs []string
+	URLs map[string]string
 }
 
-func NewURLRepo(storage []string) *RepoURL {
+func NewURLRepo(storage map[string]string) *RepoURL {
 	return &RepoURL{URLs: storage}
 }
 
-func (r *RepoURL) Add(url string) int {
-	r.URLs = append(r.URLs, url)
-	urlID := len(r.URLs)
+func (r *RepoURL) Add(url string) string {
+	var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	return urlID
-}
-
-func (r *RepoURL) Get(id int) (string, error) {
-	if id > len(r.URLs) || id <= 0 {
-		return "", errors.New("url with that id is not found")
+	randUuid := make([]byte, 5)
+	for i := range randUuid {
+		randUuid[i] = charset[seededRand.Intn(len(charset))]
 	}
 
-	return r.URLs[id-1], nil
+	r.URLs[string(randUuid)] = url
+
+	return string(randUuid)
+}
+
+func (r *RepoURL) Get(uuid string) (string, error) {
+	url := r.URLs[uuid]
+
+	if url == "" {
+		{
+			return "", errors.New("url with that id is not found")
+		}
+	}
+
+	return url, nil
 }
