@@ -15,7 +15,7 @@ func main() {
 		log.Fatal("error with reading config", err)
 	}
 
-	repository := repositories.NewRepository()
+	repository := repositories.NewURLRepo()
 	shorter := services.NewShorter(repository)
 	service := services.NewService(shorter)
 	handler := handlers.NewHandler(service)

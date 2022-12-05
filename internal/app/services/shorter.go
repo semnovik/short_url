@@ -6,10 +6,10 @@ import (
 )
 
 type Shorter struct {
-	Repository *repositories.Repository
+	Repository *repositories.RepoURL
 }
 
-func NewShorter(repos *repositories.Repository) *Shorter {
+func NewShorter(repos *repositories.RepoURL) *Shorter {
 	return &Shorter{
 		Repository: repos,
 	}
@@ -17,7 +17,7 @@ func NewShorter(repos *repositories.Repository) *Shorter {
 
 func (s *Shorter) PostURL(url string) string {
 
-	uuid := s.Repository.URLRepo.Add(url)
+	uuid := s.Repository.Add(url)
 
 	return uuid
 }
