@@ -18,14 +18,14 @@ func (r *RepoURL) Add(url string) string {
 	var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	randUuid := make([]byte, 5)
-	for i := range randUuid {
-		randUuid[i] = charset[seededRand.Intn(len(charset))]
+	randUUID := make([]byte, 5)
+	for i := range randUUID {
+		randUUID[i] = charset[seededRand.Intn(len(charset))]
 	}
 
-	r.URLs[string(randUuid)] = url
+	r.URLs[string(randUUID)] = url
 
-	return string(randUuid)
+	return string(randUUID)
 }
 
 func (r *RepoURL) Get(uuid string) (string, error) {
