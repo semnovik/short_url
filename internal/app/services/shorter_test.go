@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/require"
-	"short_url/internal/app/repositories/mocks_repos"
+	"short_url/internal/app/repositories/repo_mock"
 	"testing"
 )
 
@@ -26,7 +26,7 @@ func TestShorter_PostURL(t *testing.T) {
 			c := minimock.NewController(t)
 			defer c.Finish()
 
-			repo := mocks_repos.NewURLRepoMock(c)
+			repo := repo_mock.NewURLRepoMock(c)
 			service := Shorter{Repository: repo}
 
 			repo.AddMock.Expect(test.sendURL).Return(test.wantUUID)
@@ -56,7 +56,7 @@ func TestShorter_GetURLByID(t *testing.T) {
 			c := minimock.NewController(t)
 			defer c.Finish()
 
-			repo := mocks_repos.NewURLRepoMock(c)
+			repo := repo_mock.NewURLRepoMock(c)
 			service := Shorter{Repository: repo}
 
 			repo.GetMock.Expect(test.sendUUID).Return(test.wantURL, test.err)

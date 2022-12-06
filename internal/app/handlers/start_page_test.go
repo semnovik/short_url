@@ -9,7 +9,7 @@ package handlers
 //	"net/http"
 //	"net/http/httptest"
 //	"short_url/internal/app/services"
-//	mock_service "short_url/internal/app/services/mocks_services"
+//	mock_service "short_url/internal/app/services/service_mock"
 //	"strings"
 //	"testing"
 //)
