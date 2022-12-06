@@ -402,7 +402,8 @@ func (mmPostURL *ShorterServiceMock) PostURL(url string) (s1 string) {
 		if mm_results == nil {
 			mmPostURL.t.Fatal("No results are set for the ShorterServiceMock.PostURL")
 		}
-		return (*mm_results).s1 // nolint:govet
+		some := mm_results.s1
+		return some
 	}
 	if mmPostURL.funcPostURL != nil {
 		return mmPostURL.funcPostURL(url)
