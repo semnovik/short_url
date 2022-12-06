@@ -186,7 +186,7 @@ func (mmAdd *URLRepoMock) Add(url string) (uuid string) {
 		if mm_results == nil {
 			mmAdd.t.Fatal("No results are set for the URLRepoMock.Add")
 		}
-		return (*mm_results).uuid
+		return mm_results.uuid
 	}
 	if mmAdd.funcAdd != nil {
 		return mmAdd.funcAdd(url)
@@ -402,7 +402,7 @@ func (mmGet *URLRepoMock) Get(uuid string) (url string, err error) {
 		if mm_results == nil {
 			mmGet.t.Fatal("No results are set for the URLRepoMock.Get")
 		}
-		return (*mm_results).url, (*mm_results).err
+		return mm_results.url, mm_results.err
 	}
 	if mmGet.funcGet != nil {
 		return mmGet.funcGet(uuid)

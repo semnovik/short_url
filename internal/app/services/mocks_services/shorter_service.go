@@ -187,7 +187,7 @@ func (mmGetURLByID *ShorterServiceMock) GetURLByID(urlID string) (s1 string, err
 		if mm_results == nil {
 			mmGetURLByID.t.Fatal("No results are set for the ShorterServiceMock.GetURLByID")
 		}
-		return (*mm_results).s1, (*mm_results).err
+		return mm_results.s1, mm_results.err
 	}
 	if mmGetURLByID.funcGetURLByID != nil {
 		return mmGetURLByID.funcGetURLByID(urlID)
@@ -402,7 +402,7 @@ func (mmPostURL *ShorterServiceMock) PostURL(url string) (s1 string) {
 		if mm_results == nil {
 			mmPostURL.t.Fatal("No results are set for the ShorterServiceMock.PostURL")
 		}
-		return (*mm_results).s1
+		return mm_results.s1
 	}
 	if mmPostURL.funcPostURL != nil {
 		return mmPostURL.funcPostURL(url)
