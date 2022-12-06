@@ -11,12 +11,12 @@ type ShorterService interface {
 }
 
 type Shorter struct {
-	Repository *repositories.RepoURL
+	Repository repositories.URLRepo
 }
 
-func NewShorter(repos *repositories.RepoURL) *Shorter {
+func NewShorter(repo repositories.URLRepo) *Shorter {
 	return &Shorter{
-		Repository: repos,
+		Repository: repo,
 	}
 }
 

@@ -8,7 +8,7 @@ import (
 
 type URLRepo interface {
 	Add(url string) (uuid string)
-	Get(urlID string) (url string, err error)
+	Get(uuid string) (url string, err error)
 }
 
 var urlStorage = make(map[string]string)
