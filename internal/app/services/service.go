@@ -5,6 +5,8 @@ import (
 	"short_url/internal/app/repositories"
 )
 
+//go:generate mockgen -source=service.go -destination=mock_service/mock.go
+
 type ShorterService interface {
 	PostURL(url string) string
 	GetURLByID(urlID string) (string, error)

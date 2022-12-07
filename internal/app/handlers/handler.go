@@ -8,10 +8,10 @@ import (
 )
 
 type Handler struct {
-	Service *services.Shorter
+	Service services.ShorterService
 }
 
-func NewHandler(service *services.Shorter) http.Handler {
+func NewHandler(service services.ShorterService) http.Handler {
 	handler := &Handler{Service: service}
 
 	router := chi.NewRouter()
