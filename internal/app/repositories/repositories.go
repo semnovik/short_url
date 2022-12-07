@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+//go:generate mockgen -source=repositories.go -destination=repo_mocks/mock.go
+
 type URLRepo interface {
 	Add(url string) (uuid string)
 	Get(uuid string) (url string, err error)

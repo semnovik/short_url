@@ -2,9 +2,9 @@ package services
 
 import (
 	"errors"
-	"github.com/gojuno/minimock/v3"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"short_url/internal/app/repositories/repo_mock"
+	"short_url/internal/app/repositories/mock_repositories"
 	"testing"
 )
 
@@ -23,13 +23,13 @@ func TestShorter_PostURL(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
-			c := minimock.NewController(t)
+			c := gomock.NewController(t)
 			defer c.Finish()
 
-			repo := repo_mock.NewURLRepoMock(c)
+			repo := mock_repositories.NewMockURLRepo(c)
 			service := Shorter{Repository: repo}
 
-			repo.AddMock.Expect(test.sendURL).Return(test.wantUUID)
+			repo.EXPECT().Add(test.sendURL).Return(test.wantUUID)
 
 			gotUUID := service.PostURL(test.sendURL)
 			require.Equal(t, test.wantUUID, gotUUID)
@@ -53,13 +53,13 @@ func TestShorter_GetURLByID(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
-			c := minimock.NewController(t)
+			c := gomock.NewController(t)
 			defer c.Finish()
 
-			repo := repo_mock.NewURLRepoMock(c)
+			repo := mock_repositories.NewMockURLRepo(c)
 			service := Shorter{Repository: repo}
 
-			repo.GetMock.Expect(test.sendUUID).Return(test.wantURL, test.err)
+			repo.EXPECT().Get(test.sendUUID).Return(test.wantURL, test.err)
 
 			gotURL, gotErr := service.GetURLByID(test.sendUUID)
 			require.Equal(t, test.wantURL, gotURL)
