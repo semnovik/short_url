@@ -15,15 +15,15 @@ type URLRepo interface {
 
 var urlStorage = make(map[string]string)
 
-type RepoURL struct {
+type repoURL struct {
 	URLs map[string]string
 }
 
-func NewURLRepo() *RepoURL {
-	return &RepoURL{URLs: urlStorage}
+func NewURLRepo() *repoURL {
+	return &repoURL{URLs: urlStorage}
 }
 
-func (r *RepoURL) Add(url string) string {
+func (r *repoURL) Add(url string) string {
 	var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
@@ -37,7 +37,7 @@ func (r *RepoURL) Add(url string) string {
 	return string(randUUID)
 }
 
-func (r *RepoURL) Get(uuid string) (string, error) {
+func (r *repoURL) Get(uuid string) (string, error) {
 	url := r.URLs[uuid]
 
 	if url == "" {

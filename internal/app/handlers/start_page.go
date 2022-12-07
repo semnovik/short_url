@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (h *Handler) GetFullURL(w http.ResponseWriter, r *http.Request) {
+func (h *handler) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	urlID := chi.URLParam(r, "id")
 
 	URL, err := h.Service.GetURLByID(urlID)
@@ -20,7 +20,7 @@ func (h *Handler) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (h *Handler) SendURL(w http.ResponseWriter, r *http.Request) {
+func (h *handler) SendURL(w http.ResponseWriter, r *http.Request) {
 	request, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

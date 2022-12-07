@@ -12,24 +12,24 @@ type ShorterService interface {
 	GetURLByID(urlID string) (string, error)
 }
 
-type Shorter struct {
+type shorter struct {
 	Repository repositories.URLRepo
 }
 
-func NewShorter(repo repositories.URLRepo) *Shorter {
-	return &Shorter{
+func NewShorter(repo repositories.URLRepo) *shorter {
+	return &shorter{
 		Repository: repo,
 	}
 }
 
-func (s *Shorter) PostURL(url string) string {
+func (s *shorter) PostURL(url string) string {
 
 	uuid := s.Repository.Add(url)
 
 	return uuid
 }
 
-func (s *Shorter) GetURLByID(uuid string) (string, error) {
+func (s *shorter) GetURLByID(uuid string) (string, error) {
 
 	if uuid == "" {
 		return "", errors.New("id of url isn't set")

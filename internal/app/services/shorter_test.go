@@ -27,7 +27,7 @@ func TestShorter_PostURL(t *testing.T) {
 			defer c.Finish()
 
 			repo := mock_repositories.NewMockURLRepo(c)
-			service := Shorter{Repository: repo}
+			service := shorter{Repository: repo}
 
 			repo.EXPECT().Add(test.sendURL).Return(test.wantUUID)
 
@@ -57,7 +57,7 @@ func TestShorter_GetURLByID(t *testing.T) {
 			defer c.Finish()
 
 			repo := mock_repositories.NewMockURLRepo(c)
-			service := Shorter{Repository: repo}
+			service := shorter{Repository: repo}
 
 			repo.EXPECT().Get(test.sendUUID).Return(test.wantURL, test.err)
 

@@ -7,12 +7,12 @@ import (
 	"short_url/internal/app/services"
 )
 
-type Handler struct {
+type handler struct {
 	Service services.ShorterService
 }
 
 func NewHandler(service services.ShorterService) http.Handler {
-	handler := &Handler{Service: service}
+	handler := &handler{Service: service}
 
 	router := chi.NewRouter()
 
