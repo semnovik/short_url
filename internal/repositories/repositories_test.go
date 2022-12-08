@@ -10,10 +10,9 @@ func TestSimpleUrlRepo(t *testing.T) {
 	repo := NewURLRepo()
 
 	URL := "http://google.com"
-	UUID := repo.Add(URL)
-	require.NotEqual(t, "", UUID)
+	repo.Add("123", URL)
 
-	goURL, err := repo.Get(UUID)
+	goURL, err := repo.Get("123")
 	require.NoError(t, err)
 	require.Equal(t, URL, goURL)
 }
