@@ -4,9 +4,9 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
-	"short_url/internal/app/handlers"
-	"short_url/internal/app/repositories"
-	"short_url/internal/app/services"
+	"short_url/internal/handlers"
+	"short_url/internal/repositories"
+	"short_url/internal/services"
 )
 
 func main() {

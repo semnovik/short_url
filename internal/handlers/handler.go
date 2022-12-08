@@ -4,7 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
-	"short_url/internal/app/services"
+	"short_url/internal/services"
 )
 
 type handler struct {

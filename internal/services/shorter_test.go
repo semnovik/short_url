@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"short_url/internal/app/repositories/mock_repositories"
+	"short_url/internal/repositories/mock_repositories"
 	"testing"
 )
 

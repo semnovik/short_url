@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	mock_services "short_url/internal/app/services/mock_services"
+	"short_url/internal/services/mock_services"
 	"strings"
 	"testing"
 )

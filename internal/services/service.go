@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"short_url/internal/app/repositories"
+	"short_url/internal/repositories"
 )
 
 //go:generate mockgen -source=service.go -destination=mock_service/mock.go
