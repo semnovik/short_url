@@ -34,30 +34,28 @@ func (m *MockURLRepo) EXPECT() *MockURLRepoMockRecorder {
 }
 
 // Add mocks base method.
-func (m *MockURLRepo) Add(url string) string {
+func (m *MockURLRepo) Add(id, url string) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Add", url)
-	ret0, _ := ret[0].(string)
-	return ret0
+	m.ctrl.Call(m, "Add", id, url)
 }
 
 // Add indicates an expected call of Add.
-func (mr *MockURLRepoMockRecorder) Add(url interface{}) *gomock.Call {
+func (mr *MockURLRepoMockRecorder) Add(id, url interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockURLRepo)(nil).Add), url)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockURLRepo)(nil).Add), id, url)
 }
 
 // Get mocks base method.
-func (m *MockURLRepo) Get(uuid string) (string, error) {
+func (m *MockURLRepo) Get(id string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", uuid)
+	ret := m.ctrl.Call(m, "Get", id)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockURLRepoMockRecorder) Get(uuid interface{}) *gomock.Call {
+func (mr *MockURLRepoMockRecorder) Get(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockURLRepo)(nil).Get), uuid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockURLRepo)(nil).Get), id)
 }

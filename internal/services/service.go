@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-//go:generate mockgen -source=service.go -destination=mock_service/mock.go
+//go:generate mockgen -source=service.go -destination=mock_services/mock.go
 
-type ShorterService interface {
+type Shorter interface {
 	PostURL(url string) string
 	GetURLByID(urlID string) (string, error)
 }
@@ -26,8 +26,7 @@ func NewShorter(repo repositories.URLRepo) *shorter {
 
 func (s *shorter) PostURL(url string) string {
 	for {
-		uuid := generateUUID()
-
+		uuid := genUUID()
 		_, err := s.Repository.Get(uuid)
 		// Error returns only when url not founded by uuid
 		if err != nil {
@@ -51,6 +50,8 @@ func (s *shorter) GetURLByID(uuid string) (string, error) {
 
 	return URL, nil
 }
+
+var genUUID = generateUUID
 
 func generateUUID() string {
 	var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

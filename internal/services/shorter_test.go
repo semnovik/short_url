@@ -13,12 +13,12 @@ func TestShorter_PostURL(t *testing.T) {
 	type testCase struct {
 		name     string
 		sendURL  string
-		wantUUID string
+		sendUUID string
 	}
 
 	tests := []testCase{
-		{name: "Simple", sendURL: "https://yandex.ru", wantUUID: "qwerty"},
-		{name: "Empty", sendURL: "", wantUUID: "empty"},
+		{name: "Simple", sendURL: "https://yandex.ru", sendUUID: "qwerty"},
+		{name: "Empty", sendURL: "", sendUUID: "empty"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -29,10 +29,15 @@ func TestShorter_PostURL(t *testing.T) {
 			repo := mock_repositories.NewMockURLRepo(c)
 			service := shorter{Repository: repo}
 
-			repo.EXPECT().Add(test.sendURL).Return(test.wantUUID)
+			genUUID = func() string {
+				return test.sendUUID
+			}
+
+			repo.EXPECT().Get(test.sendUUID).Return("", errors.New("have no id"))
+			repo.EXPECT().Add(test.sendUUID, test.sendURL)
 
 			gotUUID := service.PostURL(test.sendURL)
-			require.Equal(t, test.wantUUID, gotUUID)
+			require.Equal(t, test.sendUUID, gotUUID)
 		})
 	}
 }

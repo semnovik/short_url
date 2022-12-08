@@ -13,7 +13,7 @@ import (
 )
 
 func TestHandler_GetFullURL(t *testing.T) {
-	type mockBehavior func(s *mock_services.MockShorterService, id string)
+	type mockBehavior func(s *mock_services.MockShorter, id string)
 
 	type want struct {
 		StatusCode int
@@ -33,7 +33,7 @@ func TestHandler_GetFullURL(t *testing.T) {
 			method:  http.MethodGet,
 			path:    "/",
 			request: "qwerty",
-			mockBehavior: func(s *mock_services.MockShorterService, id string) {
+			mockBehavior: func(s *mock_services.MockShorter, id string) {
 				s.EXPECT().GetURLByID(id).Return("http://google.com", nil)
 			},
 			want: want{
@@ -46,7 +46,7 @@ func TestHandler_GetFullURL(t *testing.T) {
 			method:  http.MethodGet,
 			path:    "/",
 			request: "qwerty",
-			mockBehavior: func(s *mock_services.MockShorterService, id string) {
+			mockBehavior: func(s *mock_services.MockShorter, id string) {
 				s.EXPECT().GetURLByID(id).Return("", errors.New("something went wrong"))
 			},
 			want: want{
@@ -63,7 +63,7 @@ func TestHandler_GetFullURL(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 
-			shorter := mock_services.NewMockShorterService(c)
+			shorter := mock_services.NewMockShorter(c)
 			test.mockBehavior(shorter, test.request)
 
 			// Инициализация слоя services с моком ShorterService
@@ -87,7 +87,7 @@ func TestHandler_GetFullURL(t *testing.T) {
 }
 
 func TestHandler_SendURL(t *testing.T) {
-	type mockBehavior func(s *mock_services.MockShorterService, url string)
+	type mockBehavior func(s *mock_services.MockShorter, url string)
 
 	type want struct {
 		StatusCode int
@@ -108,7 +108,7 @@ func TestHandler_SendURL(t *testing.T) {
 			method:      http.MethodPost,
 			path:        "/",
 			requestBody: "http://google.com",
-			mockBehavior: func(s *mock_services.MockShorterService, url string) {
+			mockBehavior: func(s *mock_services.MockShorter, url string) {
 				s.EXPECT().PostURL(url).Return("qwerty")
 			},
 			want: want{
@@ -122,7 +122,7 @@ func TestHandler_SendURL(t *testing.T) {
 			method:      http.MethodPost,
 			path:        "/",
 			requestBody: "http://google.com",
-			mockBehavior: func(s *mock_services.MockShorterService, url string) {
+			mockBehavior: func(s *mock_services.MockShorter, url string) {
 				s.EXPECT().PostURL(url).Return("qwerty")
 			},
 			want: want{
@@ -140,7 +140,7 @@ func TestHandler_SendURL(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 
-			shorter := mock_services.NewMockShorterService(c)
+			shorter := mock_services.NewMockShorter(c)
 			test.mockBehavior(shorter, test.requestBody)
 
 			// Инициализация слоя services с моком ShorterService

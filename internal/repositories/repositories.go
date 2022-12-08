@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-//go:generate mockgen -source=repositories.go -destination=repo_mocks/mock.go
+//go:generate mockgen -source=repositories.go -destination=mock_repositories/mock.go
 
 type URLRepo interface {
 	Add(id string, url string)
