@@ -41,9 +41,7 @@ func (r *repoURL) Get(uuid string) (string, error) {
 	url := r.URLs[uuid]
 
 	if url == "" {
-		{
-			return "", errors.New("url with that id is not found")
-		}
+		return "", errors.New("url with that id is not found")
 	}
 
 	return url, nil
