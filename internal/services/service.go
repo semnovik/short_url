@@ -2,7 +2,9 @@ package services
 
 import (
 	"errors"
+	"math/rand"
 	"short_url/internal/repositories"
+	"time"
 )
 
 //go:generate mockgen -source=service.go -destination=mock_service/mock.go
@@ -23,10 +25,17 @@ func NewShorter(repo repositories.URLRepo) *shorter {
 }
 
 func (s *shorter) PostURL(url string) string {
+	for {
+		uuid := generateUUID()
 
-	uuid := s.Repository.Add(url)
+		_, err := s.Repository.Get(uuid)
+		// Error returns only when url not founded by uuid
+		if err != nil {
+			s.Repository.Add(uuid, url)
+			return uuid
+		}
+	}
 
-	return uuid
 }
 
 func (s *shorter) GetURLByID(uuid string) (string, error) {
@@ -41,4 +50,17 @@ func (s *shorter) GetURLByID(uuid string) (string, error) {
 	}
 
 	return URL, nil
+}
+
+func generateUUID() string {
+	var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	randUUID := make([]byte, 5)
+
+	for i := range randUUID {
+		randUUID[i] = charset[seededRand.Intn(len(charset))]
+	}
+
+	return string(randUUID)
 }
