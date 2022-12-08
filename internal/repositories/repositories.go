@@ -17,7 +17,7 @@ type repoURL struct {
 	URLs map[string]string
 }
 
-func NewURLRepo() *repoURL {
+func NewRepository() *repoURL {
 	return &repoURL{URLs: urlStorage}
 }
 

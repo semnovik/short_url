@@ -1,4 +1,4 @@
-package handlers
+package server
 
 import (
 	"errors"
@@ -67,14 +67,14 @@ func TestHandler_GetFullURL(t *testing.T) {
 			test.mockBehavior(shorter, test.request)
 
 			// Инициализация слоя services с моком ShorterService
-			handler := NewHandler(shorter)
+			srv := New(shorter)
 
 			// Инициализация тестового клиента w и запроса req
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest(test.method, test.path+test.request, nil)
 
 			// Выполнение запроса и получение результатов
-			handler.ServeHTTP(w, req)
+			srv.Handler.ServeHTTP(w, req)
 
 			res := w.Result()
 			defer res.Body.Close()
@@ -144,7 +144,7 @@ func TestHandler_SendURL(t *testing.T) {
 			test.mockBehavior(shorter, test.requestBody)
 
 			// Инициализация слоя services с моком ShorterService
-			handler := NewHandler(shorter)
+			srv := New(shorter)
 
 			// Инициализация тестового клиента w и запроса req
 			w := httptest.NewRecorder()
@@ -152,7 +152,7 @@ func TestHandler_SendURL(t *testing.T) {
 			req := httptest.NewRequest(test.method, test.path, strings.NewReader(test.requestBody))
 
 			// Выполнение запроса и получение результатов
-			handler.ServeHTTP(w, req)
+			srv.Handler.ServeHTTP(w, req)
 			res := w.Result()
 
 			resBody, err := io.ReadAll(res.Body)

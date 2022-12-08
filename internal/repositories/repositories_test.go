@@ -7,7 +7,7 @@ import (
 
 func TestSimpleUrlRepo(t *testing.T) {
 
-	repo := NewURLRepo()
+	repo := NewRepository()
 
 	URL := "http://google.com"
 	repo.Add("123", URL)
@@ -19,7 +19,7 @@ func TestSimpleUrlRepo(t *testing.T) {
 
 func TestGetFromEmptyUrlRepo(t *testing.T) {
 
-	repo := NewURLRepo()
+	repo := NewRepository()
 
 	goURL, err := repo.Get("qwerty")
 	require.Error(t, err)
