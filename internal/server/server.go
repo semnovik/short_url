@@ -6,27 +6,25 @@ import (
 	"github.com/spf13/viper"
 	"io"
 	"net/http"
-	"short_url/internal/services"
+	"short_url/internal/service"
 )
 
-type srv struct {
-	Service services.Shorter
+type handler struct {
+	Service service.Shorter
 }
 
-func New(service services.Shorter) *http.Server {
-	handler := &srv{Service: service}
-
+func New(service service.Shorter) *http.Server {
 	router := chi.NewRouter()
-
 	router.Use(middleware.Logger)
 
-	router.Get("/{id}", handler.GetFullURL)
-	router.Post("/", handler.SendURL)
+	h := &handler{Service: service}
+	router.Get("/{id}", h.GetFullURL)
+	router.Post("/", h.SendURL)
 
 	return &http.Server{Handler: router, Addr: viper.GetString("app.port")}
 }
 
-func (h *srv) GetFullURL(w http.ResponseWriter, r *http.Request) {
+func (h *handler) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	urlID := chi.URLParam(r, "id")
 
 	URL, err := h.Service.GetURLByID(urlID)
@@ -40,7 +38,7 @@ func (h *srv) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (h *srv) SendURL(w http.ResponseWriter, r *http.Request) {
+func (h *handler) SendURL(w http.ResponseWriter, r *http.Request) {
 	request, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

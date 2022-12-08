@@ -1,10 +1,10 @@
-package repositories
+package storage
 
 import (
 	"errors"
 )
 
-//go:generate mockgen -source=repositories.go -destination=mock_repositories/mock.go
+//go:generate mockgen -source=repositories.go -destination=mock_storage/mock.go
 
 type URLRepo interface {
 	Add(id string, url string)
@@ -17,7 +17,7 @@ type repoURL struct {
 	URLs map[string]string
 }
 
-func NewRepository() *repoURL {
+func NewURLRepository() *repoURL {
 	return &repoURL{URLs: urlStorage}
 }
 

@@ -1,10 +1,10 @@
-package services
+package service
 
 import (
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"short_url/internal/repositories/mock_repositories"
+	"short_url/internal/storage/mock"
 	"testing"
 )
 
@@ -26,7 +26,7 @@ func TestShorter_PostURL(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 
-			repo := mock_repositories.NewMockURLRepo(c)
+			repo := mock.NewMockURLRepo(c)
 			service := shorter{Repository: repo}
 
 			genUUID = func() string {
@@ -61,7 +61,7 @@ func TestShorter_GetURLByID(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 
-			repo := mock_repositories.NewMockURLRepo(c)
+			repo := mock.NewMockURLRepo(c)
 			service := shorter{Repository: repo}
 
 			repo.EXPECT().Get(test.sendUUID).Return(test.wantURL, test.err)

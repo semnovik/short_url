@@ -1,13 +1,13 @@
-package services
+package service
 
 import (
 	"errors"
 	"math/rand"
-	"short_url/internal/repositories"
+	"short_url/internal/storage"
 	"time"
 )
 
-//go:generate mockgen -source=service.go -destination=mock_services/mock.go
+//go:generate mockgen -source=service.go -destination=mock_service/mock.go
 
 type Shorter interface {
 	PostURL(url string) string
@@ -15,10 +15,10 @@ type Shorter interface {
 }
 
 type shorter struct {
-	Repository repositories.URLRepo
+	Repository storage.URLRepo
 }
 
-func NewShorter(repo repositories.URLRepo) *shorter {
+func NewShorter(repo storage.URLRepo) *shorter {
 	return &shorter{
 		Repository: repo,
 	}
