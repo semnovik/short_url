@@ -1,4 +1,4 @@
-package storage
+package repository
 
 import (
 	"github.com/stretchr/testify/require"
@@ -10,9 +10,13 @@ func TestSimpleUrlRepo(t *testing.T) {
 	repo := NewURLRepository()
 
 	URL := "http://google.com"
-	repo.Add("123", URL)
 
-	goURL, err := repo.Get("123")
+	genUUID = func() string {
+		return "qwerty"
+	}
+	repo.Add(URL)
+
+	goURL, err := repo.Get("qwerty")
 	require.NoError(t, err)
 	require.Equal(t, URL, goURL)
 }

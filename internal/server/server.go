@@ -6,18 +6,18 @@ import (
 	"github.com/spf13/viper"
 	"io"
 	"net/http"
-	"short_url/internal/service"
+	"short_url/internal/repository"
 )
 
 type handler struct {
-	Service service.Shorter
+	repo repository.URLRepo
 }
 
-func New(service service.Shorter) *http.Server {
+func New(repo repository.URLRepo) *http.Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 
-	h := &handler{Service: service}
+	h := &handler{repo: repo}
 	router.Get("/{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
 
@@ -27,7 +27,7 @@ func New(service service.Shorter) *http.Server {
 func (h *handler) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	urlID := chi.URLParam(r, "id")
 
-	URL, err := h.Service.GetURLByID(urlID)
+	URL, err := h.repo.Get(urlID)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -45,7 +45,7 @@ func (h *handler) SendURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	urlID := h.Service.PostURL(string(request))
+	urlID := h.repo.Add(string(request))
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("http://localhost:8080/" + urlID))

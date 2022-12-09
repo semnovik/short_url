@@ -7,13 +7,13 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"short_url/internal/service/mock"
+	"short_url/internal/repository/mock"
 	"strings"
 	"testing"
 )
 
 func TestHandler_GetFullURL(t *testing.T) {
-	type mockBehavior func(s *mock.MockShorter, id string)
+	type mockBehavior func(s *mock_repository.MockURLRepo, id string)
 
 	type want struct {
 		StatusCode int
@@ -33,8 +33,8 @@ func TestHandler_GetFullURL(t *testing.T) {
 			method:  http.MethodGet,
 			path:    "/",
 			request: "qwerty",
-			mockBehavior: func(s *mock.MockShorter, id string) {
-				s.EXPECT().GetURLByID(id).Return("http://google.com", nil)
+			mockBehavior: func(s *mock_repository.MockURLRepo, id string) {
+				s.EXPECT().Get(id).Return("http://google.com", nil)
 			},
 			want: want{
 				StatusCode: http.StatusTemporaryRedirect,
@@ -46,8 +46,8 @@ func TestHandler_GetFullURL(t *testing.T) {
 			method:  http.MethodGet,
 			path:    "/",
 			request: "qwerty",
-			mockBehavior: func(s *mock.MockShorter, id string) {
-				s.EXPECT().GetURLByID(id).Return("", errors.New("something went wrong"))
+			mockBehavior: func(s *mock_repository.MockURLRepo, id string) {
+				s.EXPECT().Get(id).Return("", errors.New("something went wrong"))
 			},
 			want: want{
 				StatusCode: http.StatusBadRequest,
@@ -63,7 +63,7 @@ func TestHandler_GetFullURL(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 
-			shorter := mock.NewMockShorter(c)
+			shorter := mock_repository.NewMockURLRepo(c)
 			test.mockBehavior(shorter, test.request)
 
 			// Инициализация слоя service с моком ShorterService
@@ -87,7 +87,7 @@ func TestHandler_GetFullURL(t *testing.T) {
 }
 
 func TestHandler_SendURL(t *testing.T) {
-	type mockBehavior func(s *mock.MockShorter, url string)
+	type mockBehavior func(s *mock_repository.MockURLRepo, url string)
 
 	type want struct {
 		StatusCode int
@@ -108,8 +108,8 @@ func TestHandler_SendURL(t *testing.T) {
 			method:      http.MethodPost,
 			path:        "/",
 			requestBody: "http://google.com",
-			mockBehavior: func(s *mock.MockShorter, url string) {
-				s.EXPECT().PostURL(url).Return("qwerty")
+			mockBehavior: func(s *mock_repository.MockURLRepo, url string) {
+				s.EXPECT().Add(url).Return("qwerty")
 			},
 			want: want{
 				StatusCode: http.StatusCreated,
@@ -122,8 +122,8 @@ func TestHandler_SendURL(t *testing.T) {
 			method:      http.MethodPost,
 			path:        "/",
 			requestBody: "http://google.com",
-			mockBehavior: func(s *mock.MockShorter, url string) {
-				s.EXPECT().PostURL(url).Return("qwerty")
+			mockBehavior: func(s *mock_repository.MockURLRepo, url string) {
+				s.EXPECT().Add(url).Return("qwerty")
 			},
 			want: want{
 				StatusCode: http.StatusCreated,
@@ -140,7 +140,7 @@ func TestHandler_SendURL(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 
-			shorter := mock.NewMockShorter(c)
+			shorter := mock_repository.NewMockURLRepo(c)
 			test.mockBehavior(shorter, test.requestBody)
 
 			// Инициализация слоя service с моком ShorterService

@@ -3,9 +3,8 @@ package main
 import (
 	"github.com/spf13/viper"
 	"log"
+	"short_url/internal/repository"
 	"short_url/internal/server"
-	"short_url/internal/service"
-	"short_url/internal/storage"
 )
 
 func main() {
@@ -13,9 +12,8 @@ func main() {
 		log.Fatal("error with reading config", err)
 	}
 
-	repository := storage.NewURLRepository()
-	shorterService := service.NewShorter(repository)
-	srv := server.New(shorterService)
+	repository := repository.NewURLRepository()
+	srv := server.New(repository)
 
 	err := srv.ListenAndServe()
 	if err != nil {
