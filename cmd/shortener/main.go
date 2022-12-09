@@ -13,7 +13,7 @@ func main() {
 	}
 
 	repository := repository.NewURLRepository()
-	srv := server.New(repository)
+	srv := server.NewShorterSrv(repository)
 
 	err := srv.ListenAndServe()
 	if err != nil {

@@ -67,7 +67,7 @@ func TestHandler_GetFullURL(t *testing.T) {
 			test.mockBehavior(shorter, test.request)
 
 			// Инициализация слоя service с моком ShorterService
-			srv := New(shorter)
+			srv := NewShorterSrv(shorter)
 
 			// Инициализация тестового клиента w и запроса req
 			w := httptest.NewRecorder()
@@ -144,7 +144,7 @@ func TestHandler_SendURL(t *testing.T) {
 			test.mockBehavior(shorter, test.requestBody)
 
 			// Инициализация слоя service с моком ShorterService
-			srv := New(shorter)
+			srv := NewShorterSrv(shorter)
 
 			// Инициализация тестового клиента w и запроса req
 			w := httptest.NewRecorder()

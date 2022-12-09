@@ -9,22 +9,22 @@ import (
 	"short_url/internal/repository"
 )
 
-type handler struct {
+type ShorterSrv struct {
 	repo repository.URLRepo
 }
 
-func New(repo repository.URLRepo) *http.Server {
+func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 
-	h := &handler{repo: repo}
+	h := &ShorterSrv{repo: repo}
 	router.Get("/{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
 
 	return &http.Server{Handler: router, Addr: viper.GetString("app.port")}
 }
 
-func (h *handler) GetFullURL(w http.ResponseWriter, r *http.Request) {
+func (h *ShorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	urlID := chi.URLParam(r, "id")
 
 	URL, err := h.repo.Get(urlID)
@@ -38,7 +38,7 @@ func (h *handler) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (h *handler) SendURL(w http.ResponseWriter, r *http.Request) {
+func (h *ShorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 	request, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
