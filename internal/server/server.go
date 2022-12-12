@@ -80,6 +80,6 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write(response)
 }
