@@ -179,7 +179,7 @@ func TestHandler_Shorten(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	rawRequest := RequestShorten{Url: "https://2ch.hk"}
+	rawRequest := RequestShorten{URL: "https://2ch.hk"}
 	data, err := json.Marshal(rawRequest)
 	if err != nil {
 		t.Fatal(err)
@@ -191,6 +191,11 @@ func TestHandler_Shorten(t *testing.T) {
 	respRaw := w.Result()
 
 	body, err := io.ReadAll(respRaw.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer respRaw.Body.Close()
+
 	resp := ResponseShorten{}
 	err = json.Unmarshal(body, &resp)
 	if err != nil {

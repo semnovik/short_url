@@ -55,7 +55,7 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 }
 
 type RequestShorten struct {
-	Url string `json:"url"`
+	URL string `json:"url"`
 }
 type ResponseShorten struct {
 	Result string `json:"result"`
@@ -75,9 +75,9 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	shortenUrl := h.repo.Add(req.Url)
+	shortenURL := h.repo.Add(req.URL)
 
-	respBody := ResponseShorten{Result: shortenUrl}
+	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
 
 	w.WriteHeader(http.StatusOK)
