@@ -1,6 +1,8 @@
 package server
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -164,4 +166,36 @@ func TestHandler_SendURL(t *testing.T) {
 			assert.Equal(t, test.want.Response, string(resBody))
 		})
 	}
+}
+
+func TestHandler_Shorten(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+
+	repo := mock_repository.NewMockURLRepo(c)
+	repo.EXPECT().Add("https://2ch.hk").Return("good")
+
+	srv := NewShorterSrv(repo)
+
+	w := httptest.NewRecorder()
+
+	rawRequest := RequestShorten{Url: "https://2ch.hk"}
+	data, err := json.Marshal(rawRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(http.MethodPost, "/api/shorten", bytes.NewBuffer(data))
+
+	srv.Handler.ServeHTTP(w, req)
+	respRaw := w.Result()
+
+	body, err := io.ReadAll(respRaw.Body)
+	resp := ResponseShorten{}
+	err = json.Unmarshal(body, &resp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "good", resp.Result)
 }
