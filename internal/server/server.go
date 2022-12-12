@@ -75,7 +75,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	shortenURL := h.repo.Add(req.URL)
+	shortenURL := "http://localhost:8080/" + h.repo.Add(req.URL)
 
 	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)

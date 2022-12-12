@@ -202,5 +202,5 @@ func TestHandler_Shorten(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, "good", resp.Result)
+	assert.Equal(t, "http://localhost:8080/good", resp.Result)
 }
