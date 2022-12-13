@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/spf13/viper"
@@ -16,8 +17,10 @@ type shorterSrv struct {
 func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
+	router.Use(middleware.SetHeader("Content-Type", "application/json"))
 
 	h := &shorterSrv{repo: repo}
+	router.Post("/api/shorten", h.Shorten)
 	router.Get("/{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
 
@@ -49,4 +52,34 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("http://localhost:8080/" + urlID))
+}
+
+type RequestShorten struct {
+	URL string `json:"url"`
+}
+type ResponseShorten struct {
+	Result string `json:"result"`
+}
+
+func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
+
+	req := RequestShorten{}
+
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	err = json.Unmarshal(data, &req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	shortenURL := "http://localhost:8080/" + h.repo.Add(req.URL)
+
+	respBody := ResponseShorten{Result: shortenURL}
+	response, _ := json.Marshal(respBody)
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(response)
 }
