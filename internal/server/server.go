@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"io"
 	"net/http"
+	"os"
 	"short_url/internal/repository"
 )
 
@@ -23,7 +24,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router.Get("/{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
 
-	return &http.Server{Handler: router}
+	return &http.Server{Handler: router, Addr: ":" + os.Getenv("SERVER_ADDRESS")}
 }
 
 func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
