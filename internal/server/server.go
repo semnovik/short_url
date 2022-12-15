@@ -51,7 +51,7 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 	urlID := h.repo.Add(string(request))
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("http://localhost:8080/" + urlID))
+	w.Write([]byte(configs.Config.BaseURL + urlID))
 }
 
 type RequestShorten struct {
@@ -75,7 +75,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	shortenURL := "http://localhost:8080/" + h.repo.Add(req.URL)
+	shortenURL := configs.Config.BaseURL + h.repo.Add(req.URL)
 
 	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
