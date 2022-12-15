@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/spf13/viper"
 	"io"
 	"net/http"
+	"short_url/configs"
 	"short_url/internal/repository"
 )
 
@@ -21,10 +21,10 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 
 	h := &shorterSrv{repo: repo}
 	router.Post("/api/shorten", h.Shorten)
-	router.Get("/{id}", h.GetFullURL)
+	router.Get("/"+configs.Config.BaseURL+"{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
 
-	return &http.Server{Handler: router, Addr: viper.GetString("app.port")}
+	return &http.Server{Handler: router}
 }
 
 func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +75,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	shortenURL := "http://localhost:8080/" + h.repo.Add(req.URL)
+	shortenURL := "http://localhost:8080/" + configs.Config.BaseURL + h.repo.Add(req.URL)
 
 	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
