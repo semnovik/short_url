@@ -8,7 +8,7 @@ import (
 var Config = InitConfig()
 
 type Conf struct {
-	ServerAddress string `env:"SERVER_ADDRESS,required"`
+	ServerAddress string `env:"ADDRESS,required"`
 	BaseURL       string `env:"BASE_URL,required"`
 }
 

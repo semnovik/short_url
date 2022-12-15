@@ -21,7 +21,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 
 	h := &shorterSrv{repo: repo}
 	router.Post("/api/shorten", h.Shorten)
-	router.Get("/"+configs.Config.BaseURL+"{id}", h.GetFullURL)
+	router.Get("/{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
 
 	return &http.Server{Handler: router}
