@@ -5,19 +5,16 @@ import (
 	"log"
 )
 
-var Config = InitConfig()
+var Config Conf
 
 type Conf struct {
 	ServerAddress string `env:"SERVER_ADDRESS" envDefault:":8080"`
 	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080"`
 }
 
-func InitConfig() Conf {
-	var cfg Conf
-
-	err := env.Parse(&cfg)
+func init() {
+	err := env.Parse(&Config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return cfg
 }
