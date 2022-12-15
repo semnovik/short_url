@@ -6,7 +6,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"io"
 	"net/http"
-	"short_url/configs"
 	"short_url/internal/repository"
 )
 
@@ -75,7 +74,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	shortenURL := "http://localhost:8080/" + configs.Config.BaseURL + h.repo.Add(req.URL)
+	shortenURL := "http://localhost:8080/" + h.repo.Add(req.URL)
 
 	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
