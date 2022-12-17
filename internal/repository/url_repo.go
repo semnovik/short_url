@@ -24,38 +24,12 @@ type repoURL struct {
 	File *os.File
 }
 
-type Event struct {
-	UUID string `json:"UUID"`
-	URL  string `json:"URL"`
-}
-
 func NewURLRepository() *repoURL {
 	if configs.Config.FileStoragePath != "" {
-		file, err := os.OpenFile(configs.Config.FileStoragePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
-
-		if err != nil {
-			file = nil
-		}
-		URLs := make(map[string]string)
-
-		reader := bufio.NewReader(file)
-		for {
-			data, err := reader.ReadBytes('\n')
-			if errors.Is(err, io.EOF) {
-				break
-			}
-
-			event := Event{}
-			err = json.Unmarshal(data, &event)
-			if err != nil {
-				log.Print(err)
-			}
-
-			URLs[event.UUID] = event.URL
-		}
+		file, urls := fillRepoFromFile()
 
 		return &repoURL{
-			URLs: URLs,
+			URLs: urls,
 			File: file,
 		}
 	}
@@ -71,33 +45,9 @@ func (r *repoURL) Add(url string) string {
 		uuid := genUUID()
 		if _, ok := r.URLs[uuid]; !ok {
 
-			// Если есть интеграция с файлом, то пишем в файл
+			// Если есть интеграция с файлом, то пишем еще и в файл
 			if r.File != nil {
-				writer := bufio.NewWriter(r.File)
-				event := Event{
-					UUID: uuid,
-					URL:  url,
-				}
-				data, err := json.Marshal(event)
-				if err != nil {
-					log.Print(err)
-				}
-
-				_, err = writer.Write(data)
-				if err != nil {
-					log.Print(err)
-				}
-
-				err = writer.WriteByte('\n')
-				if err != nil {
-					log.Print(err)
-				}
-
-				err = writer.Flush()
-				if err != nil {
-					log.Print(err)
-				}
-
+				writeURLInFile(r.File, uuid, url)
 			}
 
 			r.URLs[uuid] = url
@@ -133,4 +83,63 @@ func generateUUID() string {
 	}
 
 	return string(randUUID)
+}
+
+type Event struct {
+	UUID string `json:"UUID"`
+	URL  string `json:"URL"`
+}
+
+func writeURLInFile(file *os.File, uuid string, url string) {
+	writer := bufio.NewWriter(file)
+	event := Event{
+		UUID: uuid,
+		URL:  url,
+	}
+	data, err := json.Marshal(event)
+	if err != nil {
+		log.Print(err)
+	}
+
+	_, err = writer.Write(data)
+	if err != nil {
+		log.Print(err)
+	}
+
+	err = writer.WriteByte('\n')
+	if err != nil {
+		log.Print(err)
+	}
+
+	err = writer.Flush()
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func fillRepoFromFile() (*os.File, map[string]string) {
+	file, err := os.OpenFile(configs.Config.FileStoragePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+
+	if err != nil {
+		file = nil
+	}
+	urls := make(map[string]string)
+
+	reader := bufio.NewReader(file)
+	for {
+		data, err := reader.ReadBytes('\n')
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		event := Event{}
+		err = json.Unmarshal(data, &event)
+		if err != nil {
+			log.Print(err)
+		}
+
+		urls[event.UUID] = event.URL
+	}
+
+	return file, urls
 }
