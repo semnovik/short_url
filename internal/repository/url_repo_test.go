@@ -2,11 +2,12 @@ package repository
 
 import (
 	"github.com/stretchr/testify/require"
+	"short_url/configs"
 	"testing"
 )
 
 func TestSimpleUrlRepo(t *testing.T) {
-
+	configs.Config.FileStoragePath = ""
 	repo := NewURLRepository()
 
 	URL := "http://google.com"
@@ -22,6 +23,7 @@ func TestSimpleUrlRepo(t *testing.T) {
 }
 
 func TestGetFromEmptyUrlRepo(t *testing.T) {
+	configs.Config.FileStoragePath = ""
 
 	repo := NewURLRepository()
 
