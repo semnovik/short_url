@@ -8,10 +8,14 @@ import (
 
 func main() {
 
-	repo := repository.NewURLRepository()
+	repo, err := repository.NewURLRepository()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	srv := server.NewShorterSrv(repo)
 
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}

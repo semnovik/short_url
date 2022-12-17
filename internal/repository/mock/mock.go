@@ -34,11 +34,12 @@ func (m *MockURLRepo) EXPECT() *MockURLRepoMockRecorder {
 }
 
 // Add mocks base method.
-func (m *MockURLRepo) Add(url string) string {
+func (m *MockURLRepo) Add(url string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Add", url)
 	ret0, _ := ret[0].(string)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Add indicates an expected call of Add.

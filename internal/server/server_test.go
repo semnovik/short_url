@@ -111,7 +111,7 @@ func TestHandler_SendURL(t *testing.T) {
 			path:        "/",
 			requestBody: "http://google.com",
 			mockBehavior: func(s *mock_repository.MockURLRepo, url string) {
-				s.EXPECT().Add(url).Return("qwerty")
+				s.EXPECT().Add(url).Return("qwerty", nil)
 			},
 			want: want{
 				StatusCode: http.StatusCreated,
@@ -125,7 +125,7 @@ func TestHandler_SendURL(t *testing.T) {
 			path:        "/",
 			requestBody: "http://google.com",
 			mockBehavior: func(s *mock_repository.MockURLRepo, url string) {
-				s.EXPECT().Add(url).Return("qwerty")
+				s.EXPECT().Add(url).Return("qwerty", nil)
 			},
 			want: want{
 				StatusCode: http.StatusCreated,
@@ -173,7 +173,7 @@ func TestHandler_Shorten(t *testing.T) {
 	defer c.Finish()
 
 	repo := mock_repository.NewMockURLRepo(c)
-	repo.EXPECT().Add("https://2ch.hk").Return("good")
+	repo.EXPECT().Add("https://2ch.hk").Return("good", nil)
 
 	srv := NewShorterSrv(repo)
 

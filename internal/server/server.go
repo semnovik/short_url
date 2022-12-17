@@ -48,7 +48,10 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	urlID := h.repo.Add(string(request))
+	urlID, err := h.repo.Add(string(request))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(configs.Config.BaseURL + "/" + urlID))
@@ -74,8 +77,12 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	uuid, err := h.repo.Add(req.URL)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
-	shortenURL := configs.Config.BaseURL + "/" + h.repo.Add(req.URL)
+	shortenURL := configs.Config.BaseURL + "/" + uuid
 
 	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)

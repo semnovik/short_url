@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"math/rand"
 	"os"
 	"short_url/configs"
@@ -15,7 +14,7 @@ import (
 //go:generate mockgen -source=url_repo.go -destination=mock/mock.go
 
 type URLRepo interface {
-	Add(url string) string
+	Add(url string) (string, error)
 	Get(uuid string) (url string, err error)
 }
 
@@ -24,34 +23,40 @@ type repoURL struct {
 	File *os.File
 }
 
-func NewURLRepository() *repoURL {
+func NewURLRepository() (*repoURL, error) {
 	if configs.Config.FileStoragePath != "" {
-		file, urls := fillRepoFromFile()
+		file, urls, err := fillRepoFromFile()
+		if err != nil {
+			return nil, err
+		}
 
 		return &repoURL{
 			URLs: urls,
 			File: file,
-		}
+		}, nil
 	}
 
 	return &repoURL{
 		URLs: make(map[string]string),
 		File: nil,
-	}
+	}, nil
 }
 
-func (r *repoURL) Add(url string) string {
+func (r *repoURL) Add(url string) (string, error) {
 	for {
 		uuid := genUUID()
 		if _, ok := r.URLs[uuid]; !ok {
 
 			// Если есть интеграция с файлом, то пишем еще и в файл
 			if r.File != nil {
-				writeURLInFile(r.File, uuid, url)
+				err := writeURLInFile(r.File, uuid, url)
+				if err != nil {
+					return "", err
+				}
 			}
 
 			r.URLs[uuid] = url
-			return uuid
+			return uuid, nil
 		}
 	}
 }
@@ -90,7 +95,7 @@ type Event struct {
 	URL  string `json:"URL"`
 }
 
-func writeURLInFile(file *os.File, uuid string, url string) {
+func writeURLInFile(file *os.File, uuid string, url string) error {
 	writer := bufio.NewWriter(file)
 	event := Event{
 		UUID: uuid,
@@ -98,26 +103,28 @@ func writeURLInFile(file *os.File, uuid string, url string) {
 	}
 	data, err := json.Marshal(event)
 	if err != nil {
-		log.Print(err)
+		return err
 	}
 
 	_, err = writer.Write(data)
 	if err != nil {
-		log.Print(err)
+		return err
 	}
 
 	err = writer.WriteByte('\n')
 	if err != nil {
-		log.Print(err)
+		return err
 	}
 
 	err = writer.Flush()
 	if err != nil {
-		log.Print(err)
+		return err
 	}
+
+	return nil
 }
 
-func fillRepoFromFile() (*os.File, map[string]string) {
+func fillRepoFromFile() (*os.File, map[string]string, error) {
 	file, err := os.OpenFile(configs.Config.FileStoragePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 
 	if err != nil {
@@ -135,11 +142,11 @@ func fillRepoFromFile() (*os.File, map[string]string) {
 		event := Event{}
 		err = json.Unmarshal(data, &event)
 		if err != nil {
-			log.Print(err)
+			return nil, nil, err
 		}
 
 		urls[event.UUID] = event.URL
 	}
 
-	return file, urls
+	return file, urls, nil
 }
