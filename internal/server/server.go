@@ -20,7 +20,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.SetHeader("Content-Type", "application/json"))
-	router.Use(gzipSend)
+	router.Use(gzipHandle)
 	router.Use(gzipSend)
 
 	h := &shorterSrv{repo: repo}
