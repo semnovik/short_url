@@ -1,6 +1,7 @@
 package server
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"short_url/configs"
 	"short_url/internal/repository"
+	"strings"
 )
 
 type shorterSrv struct {
@@ -18,6 +20,8 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.SetHeader("Content-Type", "application/json"))
+	router.Use(gzipSend)
+	router.Use(gzipSend)
 
 	h := &shorterSrv{repo: repo}
 	router.Post("/api/shorten", h.Shorten)
@@ -25,6 +29,50 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router.Post("/", h.SendURL)
 
 	return &http.Server{Handler: router, Addr: configs.Config.ServerAddress}
+}
+
+type gzipWriter struct {
+	http.ResponseWriter
+	Writer io.Writer
+}
+
+func (w gzipWriter) Write(b []byte) (int, error) {
+	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
+	return w.Writer.Write(b)
+}
+
+func gzipSend(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+
+		if !strings.Contains(request.Header.Get("Accept-Encoding"), "gzip") {
+			next.ServeHTTP(writer, request)
+			return
+		}
+		gz, err := gzip.NewWriterLevel(writer, gzip.BestSpeed)
+		if err != nil {
+			io.WriteString(writer, err.Error())
+			return
+		}
+		defer gz.Close()
+
+		writer.Header().Set("Content-Encoding", "gzip")
+
+		next.ServeHTTP(gzipWriter{ResponseWriter: writer, Writer: gz}, request)
+	})
+}
+
+func gzipHandle(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if request.Header.Get("Content-Type") == "gzip" {
+			gz, err := gzip.NewReader(request.Body)
+			if err != nil {
+				http.Error(writer, err.Error(), http.StatusInternalServerError)
+			}
+			request.Body = gz
+		}
+
+		next.ServeHTTP(writer, request)
+	})
 }
 
 func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
