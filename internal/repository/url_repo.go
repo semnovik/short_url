@@ -18,50 +18,42 @@ type URLRepo interface {
 	Get(uuid string) (url string, err error)
 }
 
-type repoURL struct {
-	URLs map[string]string
-	File *os.File
+type fileRepo struct {
+	mapRepo mapRepo
+	File    *os.File
 }
 
-func NewURLRepository() (*repoURL, error) {
+type mapRepo struct {
+	URLs map[string]string
+}
+
+func NewURLRepository() (URLRepo, error) {
 	if configs.Config.FileStoragePath != "" {
 		file, urls, err := fillRepoFromFile()
 		if err != nil {
 			return nil, err
 		}
 
-		return &repoURL{
-			URLs: urls,
-			File: file,
+		return &fileRepo{
+			mapRepo: mapRepo{urls},
+			File:    file,
 		}, nil
 	}
 
-	return &repoURL{
-		URLs: make(map[string]string),
-		File: nil,
-	}, nil
+	return &mapRepo{URLs: make(map[string]string)}, nil
 }
 
-func (r *repoURL) Add(url string) (string, error) {
+func (r *mapRepo) Add(url string) (string, error) {
 	for {
 		uuid := genUUID()
 		if _, ok := r.URLs[uuid]; !ok {
-
-			// Если есть интеграция с файлом, то пишем еще и в файл
-			if r.File != nil {
-				err := writeURLInFile(r.File, uuid, url)
-				if err != nil {
-					return "", err
-				}
-			}
-
 			r.URLs[uuid] = url
 			return uuid, nil
 		}
 	}
 }
 
-func (r *repoURL) Get(uuid string) (string, error) {
+func (r *mapRepo) Get(uuid string) (string, error) {
 	if uuid == "" {
 		return "", errors.New("id of url isn't set")
 	}
@@ -73,6 +65,29 @@ func (r *repoURL) Get(uuid string) (string, error) {
 	}
 
 	return url, nil
+}
+
+func (r *fileRepo) Add(url string) (string, error) {
+	for {
+		uuid := genUUID()
+		if _, ok := r.mapRepo.URLs[uuid]; !ok {
+
+			// Если есть интеграция с файлом, то пишем еще и в файл
+			if r.File != nil {
+				err := writeURLInFile(r.File, uuid, url)
+				if err != nil {
+					return "", err
+				}
+			}
+
+			r.mapRepo.URLs[uuid] = url
+			return uuid, nil
+		}
+	}
+}
+
+func (r *fileRepo) Get(uuid string) (string, error) {
+	return r.mapRepo.Get(uuid)
 }
 
 var genUUID = generateUUID
