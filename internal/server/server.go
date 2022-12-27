@@ -68,6 +68,21 @@ type ResponseShorten struct {
 
 func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 
+	//cookies := r.Cookies()
+	//isAuth := false
+	//for _, cookie := range cookies {
+	//	if cookie.Name == "auth" && cookie.Value == "328225" {
+	//		isAuth = true
+	//		break
+	//	}
+	//}
+	//if !isAuth {
+	//	http.Error(w, errors.New("не авторизован").Error(), http.StatusLocked)
+	//	return
+	//}
+	//
+	//fmt.Print(cookies)
+
 	req := RequestShorten{}
 
 	data, err := io.ReadAll(r.Body)

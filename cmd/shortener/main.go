@@ -9,14 +9,11 @@ import (
 
 func main() {
 	configs.InitFlags()
-	repo, err := repository.NewURLRepository()
-	if err != nil {
-		log.Fatal(err)
-	}
+	repo := repository.NewURLRepository()
 
 	srv := server.NewShorterSrv(repo)
 
-	err = srv.ListenAndServe()
+	err := srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
