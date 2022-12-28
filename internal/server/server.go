@@ -32,12 +32,6 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 }
 
 func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
-	_, isUserExist := checkUserExist(r, h.repo)
-
-	if !isUserExist {
-		setNewUserToken(w)
-	}
-
 	urlID := chi.URLParam(r, "id")
 
 	URL, err := h.repo.Get(urlID)
@@ -116,11 +110,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) AllUserURLS(w http.ResponseWriter, r *http.Request) {
-	userId, isUserExist := checkUserExist(r, h.repo)
-
-	if !isUserExist {
-		userId = setNewUserToken(w)
-	}
+	userId, _ := checkUserExist(r, h.repo)
 
 	urls := h.repo.AllUsersURLS(userId)
 	if len(urls) == 0 {
