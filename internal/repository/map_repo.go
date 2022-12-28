@@ -12,7 +12,7 @@ func newMapRepo() *mapRepo {
 
 func (r *mapRepo) Add(url string) (string, error) {
 	for {
-		uuid := genUUID()
+		uuid := GenUUID()
 		if _, ok := r.URLs[uuid]; !ok {
 			r.URLs[uuid] = url
 			return uuid, nil

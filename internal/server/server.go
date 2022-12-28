@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"io"
@@ -25,6 +26,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router.Post("/api/shorten", h.Shorten)
 	router.Get("/{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
+	router.Get("/api/user/urls", h.AllUserURLS)
 
 	return &http.Server{Handler: router, Addr: configs.Config.ServerAddress}
 }
@@ -68,6 +70,32 @@ type ResponseShorten struct {
 
 func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 
+	cookies := r.Cookies()
+	var userExist bool
+	var userId string
+	var newUserToken string
+	var err error
+
+	for _, v := range cookies {
+		if v.Name == "Auth" {
+			userId, err = decodeToken(v.Value)
+			if err != nil {
+				continue
+			}
+			userExist = h.repo.IsUserExist(userId)
+			break
+		}
+	}
+
+	if !userExist {
+		userId, newUserToken = generateEncodedToken()
+		newCookie := &http.Cookie{
+			Name:  "Auth",
+			Value: newUserToken,
+		}
+		http.SetCookie(w, newCookie)
+	}
+
 	req := RequestShorten{}
 
 	data, err := io.ReadAll(r.Body)
@@ -84,11 +112,35 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+	h.repo.AddByUser(userId, req.URL, configs.Config.BaseURL+"/"+uuid)
+
 	shortenURL := configs.Config.BaseURL + "/" + uuid
 
 	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
 
 	w.WriteHeader(http.StatusCreated)
+	w.Write(response)
+}
+
+func (h *shorterSrv) AllUserURLS(w http.ResponseWriter, r *http.Request) {
+	cookies := r.Cookies()
+	var userId string
+	var err error
+	for _, cookie := range cookies {
+		if cookie.Name == "Auth" {
+			userId, err = decodeToken(cookie.Value)
+			if err != nil {
+				continue
+			}
+		}
+	}
+
+	urls := h.repo.AllUsersURLS(userId)
+	if len(urls) == 0 {
+		http.Error(w, errors.New("not found").Error(), http.StatusNoContent)
+		return
+	}
+	response, _ := json.Marshal(urls)
 	w.Write(response)
 }

@@ -11,32 +11,25 @@ import (
 	"time"
 )
 
-//go:generate mockgen -source=url_repo.go -destination=mock/mock.go
+//go:generate mockgen -source=repos.go -destination=mock/mock.go
 
 type URLRepo interface {
 	Add(url string) (string, error)
 	Get(uuid string) (url string, err error)
+	AddByUser(userId, originalUrl, shortUrl string)
+	AllUsersURLS(userId string) []URLObj
+	IsUserExist(userId string) bool
 }
 
-type URLObj struct {
-	originalURL string
-	shortURL    string
-}
-
-type SomeRepo struct {
-	URLs     map[string]string
-	UserUrls map[string][]URLObj
-}
-
-func NewURLRepository() URLRepo {
+func NewRepo() URLRepo {
 	if configs.Config.FileStoragePath != "" {
 		return NewFileRepo()
 	}
 
-	return newMapRepo()
+	return NewSomeRepo()
 }
 
-var genUUID = generateUUID
+var GenUUID = generateUUID
 
 func generateUUID() string {
 	var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

@@ -8,11 +8,11 @@ import (
 
 func TestSimpleUrlRepo(t *testing.T) {
 	configs.Config.FileStoragePath = ""
-	repo := NewURLRepository()
+	repo := NewRepo()
 
 	URL := "http://google.com"
 
-	genUUID = func() string {
+	GenUUID = func() string {
 		return "qwerty"
 	}
 	_, err := repo.Add(URL)
@@ -26,7 +26,7 @@ func TestSimpleUrlRepo(t *testing.T) {
 func TestGetFromEmptyUrlRepo(t *testing.T) {
 	configs.Config.FileStoragePath = ""
 
-	repo := NewURLRepository()
+	repo := NewRepo()
 
 	goURL, err := repo.Get("qwerty")
 	require.Error(t, err)
