@@ -32,6 +32,12 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 }
 
 func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
+	_, isUserExist := checkUserExist(r, h.repo)
+
+	if !isUserExist {
+		setNewUserToken(w)
+	}
+
 	urlID := chi.URLParam(r, "id")
 
 	URL, err := h.repo.Get(urlID)
@@ -46,6 +52,12 @@ func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
+	userId, isUserExist := checkUserExist(r, h.repo)
+
+	if !isUserExist {
+		userId = setNewUserToken(w)
+	}
+
 	request, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -56,6 +68,7 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	h.repo.AddByUser(userId, string(request), configs.Config.BaseURL+"/"+urlID)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(configs.Config.BaseURL + "/" + urlID))
@@ -69,31 +82,10 @@ type ResponseShorten struct {
 }
 
 func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
+	userId, isUserExist := checkUserExist(r, h.repo)
 
-	cookies := r.Cookies()
-	var userExist bool
-	var userId string
-	var newUserToken string
-	var err error
-
-	for _, v := range cookies {
-		if v.Name == "Auth" {
-			userId, err = decodeToken(v.Value)
-			if err != nil {
-				continue
-			}
-			userExist = h.repo.IsUserExist(userId)
-			break
-		}
-	}
-
-	if !userExist {
-		userId, newUserToken = generateEncodedToken()
-		newCookie := &http.Cookie{
-			Name:  "Auth",
-			Value: newUserToken,
-		}
-		http.SetCookie(w, newCookie)
+	if !isUserExist {
+		userId = setNewUserToken(w)
 	}
 
 	req := RequestShorten{}
@@ -124,16 +116,10 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) AllUserURLS(w http.ResponseWriter, r *http.Request) {
-	cookies := r.Cookies()
-	var userId string
-	var err error
-	for _, cookie := range cookies {
-		if cookie.Name == "Auth" {
-			userId, err = decodeToken(cookie.Value)
-			if err != nil {
-				continue
-			}
-		}
+	userId, isUserExist := checkUserExist(r, h.repo)
+
+	if !isUserExist {
+		userId = setNewUserToken(w)
 	}
 
 	urls := h.repo.AllUsersURLS(userId)

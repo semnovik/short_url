@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/sha256"
 	"encoding/hex"
+	"net/http"
 	"short_url/internal/repository"
 )
 
@@ -66,4 +67,33 @@ func decode(msg string) (string, error) {
 		return "", err
 	}
 	return string(decrypted), nil
+}
+
+func checkUserExist(r *http.Request, repo repository.URLRepo) (string, bool) {
+	cookies := r.Cookies()
+	var userExist bool
+	var userId string
+	var err error
+
+	for _, v := range cookies {
+		if v.Name == "Auth" {
+			userId, err = decodeToken(v.Value)
+			if err != nil {
+				continue
+			}
+			userExist = repo.IsUserExist(userId)
+			break
+		}
+	}
+	return userId, userExist
+}
+
+func setNewUserToken(w http.ResponseWriter) string {
+	userId, newUserToken := generateEncodedToken()
+	newCookie := &http.Cookie{
+		Name:  "Auth",
+		Value: newUserToken,
+	}
+	http.SetCookie(w, newCookie)
+	return userId
 }
