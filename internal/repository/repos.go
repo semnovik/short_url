@@ -16,9 +16,9 @@ import (
 type URLRepo interface {
 	Add(url string) (string, error)
 	Get(uuid string) (url string, err error)
-	AddByUser(userId, originalUrl, shortUrl string)
-	AllUsersURLS(userId string) []URLObj
-	IsUserExist(userId string) bool
+	AddByUser(userID, originalURL, shortURL string)
+	AllUsersURLS(userID string) []URLObj
+	IsUserExist(userID string) bool
 }
 
 func NewRepo() URLRepo {

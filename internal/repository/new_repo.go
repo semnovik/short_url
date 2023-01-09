@@ -43,17 +43,17 @@ func (r *SomeRepo) Get(uuid string) (string, error) {
 	return url, nil
 }
 
-func (r *SomeRepo) AddByUser(userId, originalUrl, shortUrl string) {
+func (r *SomeRepo) AddByUser(userID, originalUrl, shortURL string) {
 
-	r.UserUrls[userId] = append(r.UserUrls[userId], URLObj{OriginalURL: originalUrl, ShortURL: shortUrl})
+	r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalUrl, ShortURL: shortURL})
 
 }
 
-func (r *SomeRepo) AllUsersURLS(userId string) []URLObj {
-	return r.UserUrls[userId]
+func (r *SomeRepo) AllUsersURLS(userID string) []URLObj {
+	return r.UserUrls[userID]
 }
 
-func (r *SomeRepo) IsUserExist(userId string) bool {
-	_, ok := r.UserUrls[userId]
+func (r *SomeRepo) IsUserExist(userID string) bool {
+	_, ok := r.UserUrls[userID]
 	return ok
 }

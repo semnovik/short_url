@@ -12,15 +12,15 @@ import (
 const password = "x35k9f"
 
 func generateEncodedToken() (string, string) {
-	userId := repository.GenUUID()
-	userToken := encode([]byte(userId))
+	userID := repository.GenUUID()
+	userToken := encode([]byte(userID))
 
-	return userId, userToken
+	return userID, userToken
 }
 
 func decodeToken(token string) (string, error) {
-	userId, err := decode(token)
-	return userId, err
+	userID, err := decode(token)
+	return userID, err
 }
 
 func encode(msg []byte) string {

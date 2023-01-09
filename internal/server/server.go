@@ -46,10 +46,10 @@ func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
-	userId, isUserExist := checkUserExist(r, h.repo)
+	userID, isUserExist := checkUserExist(r, h.repo)
 
 	if !isUserExist {
-		userId = setNewUserToken(w)
+		userID = setNewUserToken(w)
 	}
 
 	request, err := io.ReadAll(r.Body)
@@ -62,7 +62,7 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	h.repo.AddByUser(userId, string(request), configs.Config.BaseURL+"/"+urlID)
+	h.repo.AddByUser(userID, string(request), configs.Config.BaseURL+"/"+urlID)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(configs.Config.BaseURL + "/" + urlID))

@@ -46,16 +46,16 @@ func (r *fileRepo) Get(uuid string) (string, error) {
 	return r.mapRepo.Get(uuid)
 }
 
-func (r *fileRepo) AddByUser(userId, originalUrl, shortUrl string) {
-	r.mapRepo.UserUrls[userId] = append(r.mapRepo.UserUrls[userId], URLObj{OriginalURL: originalUrl, ShortURL: shortUrl})
+func (r *fileRepo) AddByUser(userID, originalUrl, shortURL string) {
+	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalUrl, ShortURL: shortURL})
 }
 
-func (r *fileRepo) AllUsersURLS(userId string) []URLObj {
-	return r.mapRepo.UserUrls[userId]
+func (r *fileRepo) AllUsersURLS(userID string) []URLObj {
+	return r.mapRepo.UserUrls[userID]
 }
 
-func (r *fileRepo) IsUserExist(userId string) bool {
-	_, ok := r.mapRepo.UserUrls[userId]
+func (r *fileRepo) IsUserExist(userID string) bool {
+	_, ok := r.mapRepo.UserUrls[userID]
 	return ok
 }
 
