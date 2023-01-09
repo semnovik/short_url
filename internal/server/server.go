@@ -76,10 +76,10 @@ type ResponseShorten struct {
 }
 
 func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
-	userId, isUserExist := checkUserExist(r, h.repo)
+	userID, isUserExist := checkUserExist(r, h.repo)
 
 	if !isUserExist {
-		userId = setNewUserToken(w)
+		userID = setNewUserToken(w)
 	}
 
 	req := RequestShorten{}
@@ -98,7 +98,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	h.repo.AddByUser(userId, req.URL, configs.Config.BaseURL+"/"+uuid)
+	h.repo.AddByUser(userID, req.URL, configs.Config.BaseURL+"/"+uuid)
 
 	shortenURL := configs.Config.BaseURL + "/" + uuid
 
@@ -110,9 +110,9 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) AllUserURLS(w http.ResponseWriter, r *http.Request) {
-	userId, _ := checkUserExist(r, h.repo)
+	userID, _ := checkUserExist(r, h.repo)
 
-	urls := h.repo.AllUsersURLS(userId)
+	urls := h.repo.AllUsersURLS(userID)
 	if len(urls) == 0 {
 		http.Error(w, errors.New("not found").Error(), http.StatusNoContent)
 		return

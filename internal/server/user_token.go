@@ -36,9 +36,7 @@ func encode(msg []byte) string {
 	}
 	nonce := key[len(key)-aesgcm.NonceSize():]
 
-	var token []byte
-
-	token = aesgcm.Seal(nil, nonce, msg, nil)
+	token := aesgcm.Seal(nil, nonce, msg, nil)
 	return hex.EncodeToString(token)
 }
 
@@ -72,28 +70,28 @@ func decode(msg string) (string, error) {
 func checkUserExist(r *http.Request, repo repository.URLRepo) (string, bool) {
 	cookies := r.Cookies()
 	var userExist bool
-	var userId string
+	var userID string
 	var err error
 
 	for _, v := range cookies {
 		if v.Name == "Auth" {
-			userId, err = decodeToken(v.Value)
+			userID, err = decodeToken(v.Value)
 			if err != nil {
 				continue
 			}
-			userExist = repo.IsUserExist(userId)
+			userExist = repo.IsUserExist(userID)
 			break
 		}
 	}
-	return userId, userExist
+	return userID, userExist
 }
 
 func setNewUserToken(w http.ResponseWriter) string {
-	userId, newUserToken := generateEncodedToken()
+	userID, newUserToken := generateEncodedToken()
 	newCookie := &http.Cookie{
 		Name:  "Auth",
 		Value: newUserToken,
 	}
 	http.SetCookie(w, newCookie)
-	return userId
+	return userID
 }

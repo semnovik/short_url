@@ -43,9 +43,9 @@ func (r *SomeRepo) Get(uuid string) (string, error) {
 	return url, nil
 }
 
-func (r *SomeRepo) AddByUser(userID, originalUrl, shortURL string) {
+func (r *SomeRepo) AddByUser(userID, originalURL, shortURL string) {
 
-	r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalUrl, ShortURL: shortURL})
+	r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
 
 }
 

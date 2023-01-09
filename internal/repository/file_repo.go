@@ -46,8 +46,8 @@ func (r *fileRepo) Get(uuid string) (string, error) {
 	return r.mapRepo.Get(uuid)
 }
 
-func (r *fileRepo) AddByUser(userID, originalUrl, shortURL string) {
-	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalUrl, ShortURL: shortURL})
+func (r *fileRepo) AddByUser(userID, originalURL, shortURL string) {
+	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
 }
 
 func (r *fileRepo) AllUsersURLS(userID string) []URLObj {
