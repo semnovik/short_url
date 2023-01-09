@@ -6,6 +6,7 @@ package mock_repository
 
 import (
 	reflect "reflect"
+	repository "short_url/internal/repository"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -48,6 +49,32 @@ func (mr *MockURLRepoMockRecorder) Add(url interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockURLRepo)(nil).Add), url)
 }
 
+// AddByUser mocks base method.
+func (m *MockURLRepo) AddByUser(userId, originalUrl, shortUrl string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AddByUser", userId, originalUrl, shortUrl)
+}
+
+// AddByUser indicates an expected call of AddByUser.
+func (mr *MockURLRepoMockRecorder) AddByUser(userId, originalUrl, shortUrl interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddByUser", reflect.TypeOf((*MockURLRepo)(nil).AddByUser), userId, originalUrl, shortUrl)
+}
+
+// AllUsersURLS mocks base method.
+func (m *MockURLRepo) AllUsersURLS(userId string) []repository.URLObj {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AllUsersURLS", userId)
+	ret0, _ := ret[0].([]repository.URLObj)
+	return ret0
+}
+
+// AllUsersURLS indicates an expected call of AllUsersURLS.
+func (mr *MockURLRepoMockRecorder) AllUsersURLS(userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AllUsersURLS", reflect.TypeOf((*MockURLRepo)(nil).AllUsersURLS), userId)
+}
+
 // Get mocks base method.
 func (m *MockURLRepo) Get(uuid string) (string, error) {
 	m.ctrl.T.Helper()
@@ -61,4 +88,18 @@ func (m *MockURLRepo) Get(uuid string) (string, error) {
 func (mr *MockURLRepoMockRecorder) Get(uuid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockURLRepo)(nil).Get), uuid)
+}
+
+// IsUserExist mocks base method.
+func (m *MockURLRepo) IsUserExist(userId string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsUserExist", userId)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsUserExist indicates an expected call of IsUserExist.
+func (mr *MockURLRepoMockRecorder) IsUserExist(userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsUserExist", reflect.TypeOf((*MockURLRepo)(nil).IsUserExist), userId)
 }
