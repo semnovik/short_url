@@ -2,17 +2,26 @@ package repository
 
 import "errors"
 
-type mapRepo struct {
-	URLs map[string]string
+type URLObj struct {
+	ShortURL    string `json:"short_url"`
+	OriginalURL string `json:"original_url"`
 }
 
-func newMapRepo() *mapRepo {
-	return &mapRepo{URLs: make(map[string]string)}
+type SomeRepo struct {
+	URLs     map[string]string
+	UserUrls map[string][]URLObj
 }
 
-func (r *mapRepo) Add(url string) (string, error) {
+func NewSomeRepo() *SomeRepo {
+	return &SomeRepo{
+		URLs:     make(map[string]string),
+		UserUrls: make(map[string][]URLObj),
+	}
+}
+
+func (r *SomeRepo) Add(url string) (string, error) {
 	for {
-		uuid := genUUID()
+		uuid := GenUUID()
 		if _, ok := r.URLs[uuid]; !ok {
 			r.URLs[uuid] = url
 			return uuid, nil
@@ -20,7 +29,7 @@ func (r *mapRepo) Add(url string) (string, error) {
 	}
 }
 
-func (r *mapRepo) Get(uuid string) (string, error) {
+func (r *SomeRepo) Get(uuid string) (string, error) {
 	if uuid == "" {
 		return "", errors.New("id of url isn't set")
 	}
@@ -32,4 +41,19 @@ func (r *mapRepo) Get(uuid string) (string, error) {
 	}
 
 	return url, nil
+}
+
+func (r *SomeRepo) AddByUser(userID, originalURL, shortURL string) {
+
+	r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
+
+}
+
+func (r *SomeRepo) AllUsersURLS(userID string) []URLObj {
+	return r.UserUrls[userID]
+}
+
+func (r *SomeRepo) IsUserExist(userID string) bool {
+	_, ok := r.UserUrls[userID]
+	return ok
 }

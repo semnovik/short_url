@@ -9,7 +9,7 @@ import (
 
 func main() {
 	configs.InitFlags()
-	repo := repository.NewURLRepository()
+	repo := repository.NewRepo()
 
 	srv := server.NewShorterSrv(repo)
 

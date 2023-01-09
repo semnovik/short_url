@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"io"
@@ -25,6 +26,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router.Post("/api/shorten", h.Shorten)
 	router.Get("/{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
+	router.Get("/api/user/urls", h.AllUserURLS)
 
 	return &http.Server{Handler: router, Addr: configs.Config.ServerAddress}
 }
@@ -44,6 +46,12 @@ func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
+	userID, isUserExist := checkUserExist(r, h.repo)
+
+	if !isUserExist {
+		userID = setNewUserToken(w)
+	}
+
 	request, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -54,6 +62,7 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	h.repo.AddByUser(userID, string(request), configs.Config.BaseURL+"/"+urlID)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(configs.Config.BaseURL + "/" + urlID))
@@ -67,21 +76,11 @@ type ResponseShorten struct {
 }
 
 func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
+	userID, isUserExist := checkUserExist(r, h.repo)
 
-	//cookies := r.Cookies()
-	//isAuth := false
-	//for _, cookie := range cookies {
-	//	if cookie.Name == "auth" && cookie.Value == "328225" {
-	//		isAuth = true
-	//		break
-	//	}
-	//}
-	//if !isAuth {
-	//	http.Error(w, errors.New("не авторизован").Error(), http.StatusLocked)
-	//	return
-	//}
-	//
-	//fmt.Print(cookies)
+	if !isUserExist {
+		userID = setNewUserToken(w)
+	}
 
 	req := RequestShorten{}
 
@@ -99,11 +98,25 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+	h.repo.AddByUser(userID, req.URL, configs.Config.BaseURL+"/"+uuid)
+
 	shortenURL := configs.Config.BaseURL + "/" + uuid
 
 	respBody := ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
 
 	w.WriteHeader(http.StatusCreated)
+	w.Write(response)
+}
+
+func (h *shorterSrv) AllUserURLS(w http.ResponseWriter, r *http.Request) {
+	userID, _ := checkUserExist(r, h.repo)
+
+	urls := h.repo.AllUsersURLS(userID)
+	if len(urls) == 0 {
+		http.Error(w, errors.New("not found").Error(), http.StatusNoContent)
+		return
+	}
+	response, _ := json.Marshal(urls)
 	w.Write(response)
 }

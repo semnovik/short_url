@@ -7,7 +7,7 @@ import (
 )
 
 type fileRepo struct {
-	mapRepo mapRepo
+	mapRepo SomeRepo
 	File    *os.File
 }
 
@@ -18,14 +18,14 @@ func NewFileRepo() *fileRepo {
 	}
 
 	return &fileRepo{
-		mapRepo: mapRepo{urls},
+		mapRepo: SomeRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
 		File:    file,
 	}
 }
 
 func (r *fileRepo) Add(url string) (string, error) {
 	for {
-		uuid := genUUID()
+		uuid := GenUUID()
 		if _, ok := r.mapRepo.URLs[uuid]; !ok {
 
 			// Если есть интеграция с файлом, то пишем еще и в файл
@@ -44,6 +44,19 @@ func (r *fileRepo) Add(url string) (string, error) {
 
 func (r *fileRepo) Get(uuid string) (string, error) {
 	return r.mapRepo.Get(uuid)
+}
+
+func (r *fileRepo) AddByUser(userID, originalURL, shortURL string) {
+	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
+}
+
+func (r *fileRepo) AllUsersURLS(userID string) []URLObj {
+	return r.mapRepo.UserUrls[userID]
+}
+
+func (r *fileRepo) IsUserExist(userID string) bool {
+	_, ok := r.mapRepo.UserUrls[userID]
+	return ok
 }
 
 type Event struct {
