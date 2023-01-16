@@ -19,6 +19,7 @@ type URLRepo interface {
 	AddByUser(userID, originalURL, shortURL string)
 	AllUsersURLS(userID string) []URLObj
 	IsUserExist(userID string) bool
+	Ping() error
 }
 
 func NewRepo() URLRepo {

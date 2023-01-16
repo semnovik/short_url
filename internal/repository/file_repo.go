@@ -2,13 +2,16 @@ package repository
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
+	"github.com/jackc/pgx/v5"
 	"os"
 )
 
 type fileRepo struct {
-	mapRepo SomeRepo
-	File    *os.File
+	mapRepo    mapRepo
+	File       *os.File
+	PostgresDB *pgx.Conn
 }
 
 func NewFileRepo() *fileRepo {
@@ -18,8 +21,9 @@ func NewFileRepo() *fileRepo {
 	}
 
 	return &fileRepo{
-		mapRepo: SomeRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
-		File:    file,
+		mapRepo:    mapRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
+		File:       file,
+		PostgresDB: NewPostgresDB(),
 	}
 }
 
@@ -57,6 +61,11 @@ func (r *fileRepo) AllUsersURLS(userID string) []URLObj {
 func (r *fileRepo) IsUserExist(userID string) bool {
 	_, ok := r.mapRepo.UserUrls[userID]
 	return ok
+}
+
+func (r *fileRepo) Ping() error {
+	ctx := context.Background()
+	return r.PostgresDB.Ping(ctx)
 }
 
 type Event struct {

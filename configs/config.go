@@ -13,6 +13,7 @@ type cfg struct {
 	ServerAddress   string `env:"SERVER_ADDRESS" envDefault:":8080"`
 	BaseURL         string `env:"BASE_URL" envDefault:"http://localhost:8080"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH" envDefault:"./internal/repository/file_with_urls"`
+	DatabaseDSN     string `env:"DATABASE_DSN" envDefault:"postgresql://admin:password@127.0.0.1:5438"`
 }
 
 func init() {
