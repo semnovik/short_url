@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/jackc/pgx/v5"
 	"os"
 )
@@ -65,6 +66,9 @@ func (r *fileRepo) IsUserExist(userID string) bool {
 
 func (r *fileRepo) Ping() error {
 	ctx := context.Background()
+	if r.PostgresDB == nil {
+		return errors.New("something wrong with DB-connection")
+	}
 	return r.PostgresDB.Ping(ctx)
 }
 
