@@ -67,7 +67,7 @@ func (r *mapRepo) IsUserExist(userID string) bool {
 func (r *mapRepo) Ping() error {
 	ctx := context.Background()
 	if r.PostgresDB == nil {
-		return errors.New("something wrong with DB-connection")
+		return errors.New("something wrong with DB connection")
 	}
 	return r.PostgresDB.Ping(ctx)
 }

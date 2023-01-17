@@ -125,7 +125,7 @@ func (h *shorterSrv) AllUserURLS(w http.ResponseWriter, r *http.Request) {
 func (h *shorterSrv) Ping(w http.ResponseWriter, r *http.Request) {
 	err := h.repo.Ping()
 	if err != nil {
-		http.Error(w, errors.New("something wrong with DB").Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("everything is OK with DB"))
