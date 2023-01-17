@@ -13,7 +13,7 @@ type cfg struct {
 	ServerAddress   string `env:"SERVER_ADDRESS" envDefault:":8080"`
 	BaseURL         string `env:"BASE_URL" envDefault:"http://localhost:8080"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH" envDefault:"./internal/repository/file_with_urls"`
-	DatabaseDSN     string `env:"DATABASE_DSN" envDefault:"postgresql://admin:password@127.0.0.1:5438"`
+	DatabaseDSN     string `env:"DATABASE_DSN"`
 }
 
 func init() {
@@ -34,7 +34,7 @@ func InitFlags() {
 		flag.StringVar(&Config.FileStoragePath, "f", "./internal/repository/file_with_urls", "path to file with urls")
 	}
 	if _, exist := os.LookupEnv("DATABASE_DSN"); !exist {
-		flag.StringVar(&Config.DatabaseDSN, "d", "postgresql://admin:password@127.0.0.1:5438", "dsn for db")
+		flag.StringVar(&Config.DatabaseDSN, "d", "host=db port=5432 dbname=admin user=admin password=password", "dsn for db")
 	}
 	flag.Parse()
 }
