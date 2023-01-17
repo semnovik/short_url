@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/jackc/pgx/v5"
 	"log"
-	"os"
 	"short_url/configs"
 	"short_url/internal/repository"
 	"short_url/internal/server"
@@ -17,7 +16,7 @@ func main() {
 	var dbConn *pgx.Conn
 	var err error
 
-	if _, exist := os.LookupEnv("DATABASE_DSN"); exist {
+	if configs.Config.DatabaseDSN != "" {
 		dbConn, err = pgx.Connect(ctx, configs.Config.DatabaseDSN)
 		if err != nil {
 			panic(err)
