@@ -27,6 +27,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router.Get("/{id}", h.GetFullURL)
 	router.Post("/", h.SendURL)
 	router.Get("/api/user/urls", h.AllUserURLS)
+	router.Get("/ping", h.Ping)
 
 	return &http.Server{Handler: router, Addr: configs.Config.ServerAddress}
 }
@@ -119,4 +120,14 @@ func (h *shorterSrv) AllUserURLS(w http.ResponseWriter, r *http.Request) {
 	}
 	response, _ := json.Marshal(urls)
 	w.Write(response)
+}
+
+func (h *shorterSrv) Ping(w http.ResponseWriter, r *http.Request) {
+	err := h.repo.Ping()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("everything is OK with DB"))
+	}
 }

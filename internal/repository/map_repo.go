@@ -1,25 +1,31 @@
 package repository
 
-import "errors"
+import (
+	"context"
+	"errors"
+	"github.com/jackc/pgx/v5"
+)
 
 type URLObj struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 }
 
-type SomeRepo struct {
-	URLs     map[string]string
-	UserUrls map[string][]URLObj
+type mapRepo struct {
+	URLs       map[string]string
+	UserUrls   map[string][]URLObj
+	PostgresDB *pgx.Conn
 }
 
-func NewSomeRepo() *SomeRepo {
-	return &SomeRepo{
-		URLs:     make(map[string]string),
-		UserUrls: make(map[string][]URLObj),
+func NewSomeRepo(conn *pgx.Conn) *mapRepo {
+	return &mapRepo{
+		URLs:       make(map[string]string),
+		UserUrls:   make(map[string][]URLObj),
+		PostgresDB: conn,
 	}
 }
 
-func (r *SomeRepo) Add(url string) (string, error) {
+func (r *mapRepo) Add(url string) (string, error) {
 	for {
 		uuid := GenUUID()
 		if _, ok := r.URLs[uuid]; !ok {
@@ -29,7 +35,7 @@ func (r *SomeRepo) Add(url string) (string, error) {
 	}
 }
 
-func (r *SomeRepo) Get(uuid string) (string, error) {
+func (r *mapRepo) Get(uuid string) (string, error) {
 	if uuid == "" {
 		return "", errors.New("id of url isn't set")
 	}
@@ -43,17 +49,25 @@ func (r *SomeRepo) Get(uuid string) (string, error) {
 	return url, nil
 }
 
-func (r *SomeRepo) AddByUser(userID, originalURL, shortURL string) {
+func (r *mapRepo) AddByUser(userID, originalURL, shortURL string) {
 
 	r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
 
 }
 
-func (r *SomeRepo) AllUsersURLS(userID string) []URLObj {
+func (r *mapRepo) AllUsersURLS(userID string) []URLObj {
 	return r.UserUrls[userID]
 }
 
-func (r *SomeRepo) IsUserExist(userID string) bool {
+func (r *mapRepo) IsUserExist(userID string) bool {
 	_, ok := r.UserUrls[userID]
 	return ok
+}
+
+func (r *mapRepo) Ping() error {
+	ctx := context.Background()
+	if r.PostgresDB == nil {
+		return errors.New("something wrong with DB connection")
+	}
+	return r.PostgresDB.Ping(ctx)
 }

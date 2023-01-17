@@ -1,6 +1,6 @@
 package server
 
-//
+//для мержа
 //import (
 //	"bytes"
 //	"encoding/json"

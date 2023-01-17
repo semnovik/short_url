@@ -2,24 +2,29 @@ package repository
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
+	"errors"
+	"github.com/jackc/pgx/v5"
 	"os"
 )
 
 type fileRepo struct {
-	mapRepo SomeRepo
-	File    *os.File
+	mapRepo    mapRepo
+	File       *os.File
+	PostgresDB *pgx.Conn
 }
 
-func NewFileRepo() *fileRepo {
+func NewFileRepo(conn *pgx.Conn) *fileRepo {
 	file, urls, err := fillRepoFromFile()
 	if err != nil {
 		return nil
 	}
 
 	return &fileRepo{
-		mapRepo: SomeRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
-		File:    file,
+		mapRepo:    mapRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
+		File:       file,
+		PostgresDB: conn,
 	}
 }
 
@@ -57,6 +62,14 @@ func (r *fileRepo) AllUsersURLS(userID string) []URLObj {
 func (r *fileRepo) IsUserExist(userID string) bool {
 	_, ok := r.mapRepo.UserUrls[userID]
 	return ok
+}
+
+func (r *fileRepo) Ping() error {
+	ctx := context.Background()
+	if r.PostgresDB == nil {
+		return errors.New("something wrong with DB-connection")
+	}
+	return r.PostgresDB.Ping(ctx)
 }
 
 type Event struct {

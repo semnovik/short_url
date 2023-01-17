@@ -13,6 +13,7 @@ type cfg struct {
 	ServerAddress   string `env:"SERVER_ADDRESS" envDefault:":8080"`
 	BaseURL         string `env:"BASE_URL" envDefault:"http://localhost:8080"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH" envDefault:"./internal/repository/file_with_urls"`
+	DatabaseDSN     string `env:"DATABASE_DSN"` // host=localhost port=5438 dbname=admin user=admin password=password
 }
 
 func init() {
@@ -32,6 +33,9 @@ func InitFlags() {
 	if _, exist := os.LookupEnv("FILE_STORAGE_PATH"); !exist {
 		flag.StringVar(&Config.FileStoragePath, "f", "./internal/repository/file_with_urls", "path to file with urls")
 	}
-
+	if _, exist := os.LookupEnv("DATABASE_DSN"); !exist {
+		flag.StringVar(&Config.DatabaseDSN, "d", "", "dsn for db")
+		// host=localhost port=5438 dbname=admin user=admin password=password
+	}
 	flag.Parse()
 }

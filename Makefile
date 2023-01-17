@@ -2,11 +2,11 @@
 build-image:
 	- docker build -t short_url .
 
-run-app:
-	- docker-compose -f docker-compose.yaml up
+up:
+	- docker-compose up --build
 
-stop-app:
-	- docker-compose -f docker-compose.yaml down
+down:
+	- docker-compose down
 
 cover:
 	- go test -coverprofile=cover.out ./...
