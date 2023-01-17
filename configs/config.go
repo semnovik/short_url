@@ -35,6 +35,7 @@ func InitFlags() {
 	}
 	if _, exist := os.LookupEnv("DATABASE_DSN"); !exist {
 		flag.StringVar(&Config.DatabaseDSN, "d", "", "dsn for db")
+		// host=db port=5432 dbname=admin user=admin password=password to run with local db
 	}
 	flag.Parse()
 }
