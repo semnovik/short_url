@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"github.com/jackc/pgx/v5"
 	"io"
 	"math/rand"
 	"os"
@@ -22,12 +23,12 @@ type URLRepo interface {
 	Ping() error
 }
 
-func NewRepo() URLRepo {
+func NewRepo(conn *pgx.Conn) URLRepo {
 	if configs.Config.FileStoragePath != "" {
-		return NewFileRepo()
+		return NewFileRepo(conn)
 	}
 
-	return NewSomeRepo()
+	return NewSomeRepo(conn)
 }
 
 var GenUUID = generateUUID
