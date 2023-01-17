@@ -13,26 +13,26 @@ func main() {
 	configs.InitFlags()
 	ctx := context.Background()
 
-	repo := repository.NewRepo(nil)
+	var dbConn *pgx.Conn
+	var err error
 
 	if configs.Config.DatabaseDSN != "" {
-		conn, err := pgx.Connect(ctx, configs.Config.DatabaseDSN)
+		dbConn, err = pgx.Connect(ctx, configs.Config.DatabaseDSN)
 		if err != nil {
 			panic(err)
 		}
-		defer conn.Close(ctx)
+		defer dbConn.Close(ctx)
 
-		err = conn.Ping(ctx)
+		err = dbConn.Ping(ctx)
 		if err != nil {
 			panic(err)
 		}
-
-		repo = repository.NewRepo(conn)
 	}
 
+	repo := repository.NewRepo(dbConn)
 	srv := server.NewShorterSrv(repo)
 
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
