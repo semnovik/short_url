@@ -33,6 +33,8 @@ func InitFlags() {
 	if _, exist := os.LookupEnv("FILE_STORAGE_PATH"); !exist {
 		flag.StringVar(&Config.FileStoragePath, "f", "./internal/repository/file_with_urls", "path to file with urls")
 	}
-
+	if _, exist := os.LookupEnv("DATABASE_DSN"); !exist {
+		flag.StringVar(&Config.FileStoragePath, "d", "postgresql://admin:password@127.0.0.1:5438", "dsn for db")
+	}
 	flag.Parse()
 }
