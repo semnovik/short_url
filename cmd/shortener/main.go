@@ -29,6 +29,10 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		log.Print("DB successfully configured")
+	} else {
+		log.Print("DB not configured")
 	}
 
 	repo := repository.NewRepo(dbConn)
