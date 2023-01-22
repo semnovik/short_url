@@ -20,17 +20,18 @@ func main() {
 
 	if configs.Config.DatabaseDSN != "" {
 		dbConn, err = pgx.Connect(ctx, configs.Config.DatabaseDSN)
-		if err != nil {
-			panic(err)
-		}
 		defer dbConn.Close(ctx)
 
-		err = dbConn.Ping(ctx)
-		if err != nil {
-			panic(err)
+		switch {
+		case err != nil:
+			log.Print("DB not configured")
+		default:
+			err = dbConn.Ping(ctx)
+			if err != nil {
+				panic(err)
+			}
+			log.Print("DB successfully configured")
 		}
-
-		log.Print("DB successfully configured")
 	} else {
 		log.Print("DB not configured")
 	}

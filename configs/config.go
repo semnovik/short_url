@@ -35,7 +35,8 @@ func InitFlags() {
 	}
 	if _, exist := os.LookupEnv("DATABASE_DSN"); !exist {
 		flag.StringVar(&Config.DatabaseDSN, "d", "", "dsn for db")
-		// host=localhost port=5438 dbname=admin user=admin password=password
+		// host=localhost port=5438 dbname=admin user=admin password=password - local
+		// host=db port=5432 dbname=admin user=admin password=password - inside docker
 	}
 	flag.Parse()
 }
