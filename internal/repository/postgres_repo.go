@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 	"short_url/configs"
 )
 
@@ -18,7 +19,7 @@ func NewPostgresRepo() (*PostgresRepo, error) {
 		db, err = sql.Open("pgx", configs.Config.DatabaseDSN)
 	}
 
-	//err = goose.Up(db, configs.Config.MigrationsDir, goose.WithAllowMissing())
+	err = goose.Up(db, configs.Config.MigrationsDir, goose.WithAllowMissing())
 
 	return &PostgresRepo{Conn: db}, err
 }
