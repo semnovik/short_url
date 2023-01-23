@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"io"
 	"math/rand"
 	"os"
@@ -23,7 +22,7 @@ type URLRepo interface {
 	Ping() error
 }
 
-func NewRepo(conn *pgx.Conn) URLRepo {
+func NewRepo(conn *PostgresRepo) URLRepo {
 	if configs.Config.FileStoragePath != "" {
 		return NewFileRepo(conn)
 	}

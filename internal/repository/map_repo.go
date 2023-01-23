@@ -17,11 +17,11 @@ type mapRepo struct {
 	PostgresDB *pgx.Conn
 }
 
-func NewSomeRepo(conn *pgx.Conn) *mapRepo {
+func NewSomeRepo(postgres *PostgresRepo) *mapRepo {
 	return &mapRepo{
 		URLs:       make(map[string]string),
 		UserUrls:   make(map[string][]URLObj),
-		PostgresDB: conn,
+		PostgresDB: postgres.Conn,
 	}
 }
 

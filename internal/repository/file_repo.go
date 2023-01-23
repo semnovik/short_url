@@ -15,7 +15,7 @@ type fileRepo struct {
 	PostgresDB *pgx.Conn
 }
 
-func NewFileRepo(conn *pgx.Conn) *fileRepo {
+func NewFileRepo(postgres *PostgresRepo) *fileRepo {
 	file, urls, err := fillRepoFromFile()
 	if err != nil {
 		return nil
@@ -24,7 +24,7 @@ func NewFileRepo(conn *pgx.Conn) *fileRepo {
 	return &fileRepo{
 		mapRepo:    mapRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
 		File:       file,
-		PostgresDB: conn,
+		PostgresDB: postgres.Conn,
 	}
 }
 
