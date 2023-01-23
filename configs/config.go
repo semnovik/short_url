@@ -14,6 +14,7 @@ type cfg struct {
 	BaseURL         string `env:"BASE_URL" envDefault:"http://localhost:8080"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH" envDefault:"./internal/repository/file_with_urls"`
 	DatabaseDSN     string `env:"DATABASE_DSN"` // host=localhost port=5438 dbname=admin user=admin password=password
+	MigrationsDir   string `env:"MIGRATIONS_DIR" envDefault:"./migrations"`
 }
 
 func init() {
@@ -37,6 +38,9 @@ func InitFlags() {
 		flag.StringVar(&Config.DatabaseDSN, "d", "", "dsn for db")
 		// host=localhost port=5438 dbname=admin user=admin password=password - local
 		// host=db port=5432 dbname=admin user=admin password=password - inside docker
+	}
+	if _, exist := os.LookupEnv("MIGRATIONS_DIR"); !exist {
+		flag.StringVar(&Config.FileStoragePath, "mg", "./migrations", "path to migration files")
 	}
 	flag.Parse()
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"short_url/configs"
 	"short_url/internal/repository"
@@ -13,15 +12,18 @@ func main() {
 
 	configs.InitFlags()
 
-	dbConn := repository.NewPostgresRepo()
+	dbConn, err := repository.NewPostgresRepo()
 	if dbConn != nil {
-		defer dbConn.Conn.Close(context.Background())
+		defer dbConn.Conn.Close()
+	}
+	if err != nil {
+		panic(err)
 	}
 
 	repo := repository.NewRepo(dbConn)
 	srv := server.NewShorterSrv(repo)
 
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}

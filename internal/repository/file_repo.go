@@ -2,17 +2,16 @@ package repository
 
 import (
 	"bufio"
-	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"os"
 )
 
 type FileRepo struct {
 	mapRepo    MapRepo
 	File       *os.File
-	PostgresDB *pgx.Conn
+	PostgresDB *sql.DB
 }
 
 func NewFileRepo(postgres *PostgresRepo) *FileRepo {
@@ -65,11 +64,10 @@ func (r *FileRepo) IsUserExist(userID string) bool {
 }
 
 func (r *FileRepo) Ping() error {
-	ctx := context.Background()
 	if r.PostgresDB == nil {
 		return errors.New("something wrong with DB-connection")
 	}
-	return r.PostgresDB.Ping(ctx)
+	return r.PostgresDB.Ping()
 }
 
 type Event struct {

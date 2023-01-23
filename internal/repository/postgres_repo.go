@@ -1,41 +1,26 @@
 package repository
 
 import (
-	"context"
-	"github.com/jackc/pgx/v5"
-	"log"
+	"database/sql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"short_url/configs"
 )
 
 type PostgresRepo struct {
-	Conn *pgx.Conn
+	Conn *sql.DB
 }
 
-func NewPostgresRepo() *PostgresRepo {
-	ctx := context.Background()
-	var dbConn *pgx.Conn
+func NewPostgresRepo() (*PostgresRepo, error) {
 	var err error
+	var db *sql.DB
 
 	if configs.Config.DatabaseDSN != "" {
-
-		dbConn, err = pgx.Connect(ctx, configs.Config.DatabaseDSN)
-
-		switch {
-		case err != nil:
-			log.Print("DB not configured")
-		default:
-
-			err = dbConn.Ping(ctx)
-			if err != nil {
-				panic(err)
-			}
-			log.Print("DB successfully configured")
-		}
-	} else {
-		log.Print("DB not configured")
+		db, err = sql.Open("pgx", configs.Config.DatabaseDSN)
 	}
 
-	return &PostgresRepo{Conn: dbConn}
+	//err = goose.Up(db, configs.Config.MigrationsDir, goose.WithAllowMissing())
+
+	return &PostgresRepo{Conn: db}, err
 }
 
 //func (r *PostgresRepo) Add(url string) (string, error) {

@@ -1,9 +1,8 @@
 package repository
 
 import (
-	"context"
+	"database/sql"
 	"errors"
-	"github.com/jackc/pgx/v5"
 )
 
 type URLObj struct {
@@ -14,7 +13,7 @@ type URLObj struct {
 type MapRepo struct {
 	URLs       map[string]string
 	UserUrls   map[string][]URLObj
-	PostgresDB *pgx.Conn
+	PostgresDB *sql.DB
 }
 
 func NewSomeRepo(postgres *PostgresRepo) *MapRepo {
@@ -65,9 +64,8 @@ func (r *MapRepo) IsUserExist(userID string) bool {
 }
 
 func (r *MapRepo) Ping() error {
-	ctx := context.Background()
 	if r.PostgresDB == nil {
 		return errors.New("something wrong with DB connection")
 	}
-	return r.PostgresDB.Ping(ctx)
+	return r.PostgresDB.Ping()
 }
