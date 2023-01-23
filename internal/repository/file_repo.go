@@ -9,26 +9,26 @@ import (
 	"os"
 )
 
-type fileRepo struct {
-	mapRepo    mapRepo
+type FileRepo struct {
+	mapRepo    MapRepo
 	File       *os.File
 	PostgresDB *pgx.Conn
 }
 
-func NewFileRepo(postgres *PostgresRepo) *fileRepo {
+func NewFileRepo(postgres *PostgresRepo) *FileRepo {
 	file, urls, err := fillRepoFromFile()
 	if err != nil {
 		return nil
 	}
 
-	return &fileRepo{
-		mapRepo:    mapRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
+	return &FileRepo{
+		mapRepo:    MapRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
 		File:       file,
 		PostgresDB: postgres.Conn,
 	}
 }
 
-func (r *fileRepo) Add(url string) (string, error) {
+func (r *FileRepo) Add(url string) (string, error) {
 	for {
 		uuid := GenUUID()
 		if _, ok := r.mapRepo.URLs[uuid]; !ok {
@@ -47,24 +47,24 @@ func (r *fileRepo) Add(url string) (string, error) {
 	}
 }
 
-func (r *fileRepo) Get(uuid string) (string, error) {
+func (r *FileRepo) Get(uuid string) (string, error) {
 	return r.mapRepo.Get(uuid)
 }
 
-func (r *fileRepo) AddByUser(userID, originalURL, shortURL string) {
+func (r *FileRepo) AddByUser(userID, originalURL, shortURL string) {
 	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
 }
 
-func (r *fileRepo) AllUsersURLS(userID string) []URLObj {
+func (r *FileRepo) AllUsersURLS(userID string) []URLObj {
 	return r.mapRepo.UserUrls[userID]
 }
 
-func (r *fileRepo) IsUserExist(userID string) bool {
+func (r *FileRepo) IsUserExist(userID string) bool {
 	_, ok := r.mapRepo.UserUrls[userID]
 	return ok
 }
 
-func (r *fileRepo) Ping() error {
+func (r *FileRepo) Ping() error {
 	ctx := context.Background()
 	if r.PostgresDB == nil {
 		return errors.New("something wrong with DB-connection")

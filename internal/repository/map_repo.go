@@ -11,21 +11,21 @@ type URLObj struct {
 	OriginalURL string `json:"original_url"`
 }
 
-type mapRepo struct {
+type MapRepo struct {
 	URLs       map[string]string
 	UserUrls   map[string][]URLObj
 	PostgresDB *pgx.Conn
 }
 
-func NewSomeRepo(postgres *PostgresRepo) *mapRepo {
-	return &mapRepo{
+func NewSomeRepo(postgres *PostgresRepo) *MapRepo {
+	return &MapRepo{
 		URLs:       make(map[string]string),
 		UserUrls:   make(map[string][]URLObj),
 		PostgresDB: postgres.Conn,
 	}
 }
 
-func (r *mapRepo) Add(url string) (string, error) {
+func (r *MapRepo) Add(url string) (string, error) {
 	for {
 		uuid := GenUUID()
 		if _, ok := r.URLs[uuid]; !ok {
@@ -35,7 +35,7 @@ func (r *mapRepo) Add(url string) (string, error) {
 	}
 }
 
-func (r *mapRepo) Get(uuid string) (string, error) {
+func (r *MapRepo) Get(uuid string) (string, error) {
 	if uuid == "" {
 		return "", errors.New("id of url isn't set")
 	}
@@ -49,22 +49,22 @@ func (r *mapRepo) Get(uuid string) (string, error) {
 	return url, nil
 }
 
-func (r *mapRepo) AddByUser(userID, originalURL, shortURL string) {
+func (r *MapRepo) AddByUser(userID, originalURL, shortURL string) {
 
 	r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
 
 }
 
-func (r *mapRepo) AllUsersURLS(userID string) []URLObj {
+func (r *MapRepo) AllUsersURLS(userID string) []URLObj {
 	return r.UserUrls[userID]
 }
 
-func (r *mapRepo) IsUserExist(userID string) bool {
+func (r *MapRepo) IsUserExist(userID string) bool {
 	_, ok := r.UserUrls[userID]
 	return ok
 }
 
-func (r *mapRepo) Ping() error {
+func (r *MapRepo) Ping() error {
 	ctx := context.Background()
 	if r.PostgresDB == nil {
 		return errors.New("something wrong with DB connection")
