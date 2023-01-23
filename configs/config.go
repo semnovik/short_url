@@ -40,7 +40,7 @@ func InitFlags() {
 		// host=db port=5432 dbname=admin user=admin password=password - inside docker
 	}
 	if _, exist := os.LookupEnv("MIGRATIONS_DIR"); !exist {
-		flag.StringVar(&Config.FileStoragePath, "mg", "./migrations", "path to migration files")
+		flag.StringVar(&Config.MigrationsDir, "mg", "./migrations", "path to migration files")
 	}
 	flag.Parse()
 }
