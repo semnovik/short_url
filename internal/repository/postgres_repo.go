@@ -40,13 +40,13 @@ func (r *PostgresRepo) Add(url string) (string, error) {
 }
 
 func (r *PostgresRepo) Get(uuid string) (string, error) {
-	var originalUrl string
-	err := r.Conn.QueryRow("SELECT original_url FROM urls WHERE short_url=$1", configs.Config.BaseURL+"/"+uuid).Scan(&originalUrl)
+	var originalURL string
+	err := r.Conn.QueryRow("SELECT original_url FROM urls WHERE short_url=$1", configs.Config.BaseURL+"/"+uuid).Scan(&originalURL)
 	if err != nil {
 		return "", err
 	}
 
-	return originalUrl, nil
+	return originalURL, nil
 }
 
 func (r *PostgresRepo) AddByUser(userID, originalURL, shortURL string) {
@@ -83,11 +83,18 @@ func (r *PostgresRepo) AllUsersURLS(userID string) []URLObj {
 		}
 		urlsByUser = append(urlsByUser, urlByUser)
 	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil
+	}
+
 	return urlsByUser
 }
 
 func (r *PostgresRepo) IsUserExist(userID string) bool {
-	var uuidFromDb string
+	var uuidFromDB string
+
 	row := r.Conn.QueryRow(`
 		SELECT user_uuid 
 		FROM urls 
@@ -95,11 +102,11 @@ func (r *PostgresRepo) IsUserExist(userID string) bool {
 		LIMIT 1
 		`, userID)
 
-	err := row.Scan(&uuidFromDb)
+	err := row.Scan(&uuidFromDB)
 	if err != nil {
 		return false
 	}
-	if uuidFromDb == userID {
+	if uuidFromDB == userID {
 		return true
 	}
 	return false
