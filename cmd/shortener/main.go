@@ -1,8 +1,8 @@
 package main
 
 import (
-	"context"
-	"github.com/jackc/pgx/v5"
+	"database/sql"
+	"github.com/pressly/goose/v3"
 	"log"
 	"short_url/configs"
 	"short_url/internal/repository"
@@ -11,27 +11,25 @@ import (
 
 func main() {
 	configs.InitFlags()
-	ctx := context.Background()
 
-	var dbConn *pgx.Conn
+	var db *sql.DB
 	var err error
 
 	if configs.Config.DatabaseDSN != "" {
-		dbConn, err = pgx.Connect(ctx, configs.Config.DatabaseDSN)
+		db, err = sql.Open("pgx", configs.Config.DatabaseDSN)
 		if err != nil {
-			panic(err)
+			log.Panicln(err)
 		}
-		defer dbConn.Close(ctx)
+		defer db.Close()
 
-		err = dbConn.Ping(ctx)
+		err = goose.Up(db, configs.Config.MigrationsDir, goose.WithAllowMissing())
 		if err != nil {
-			panic(err)
+			log.Print("Cannot make migrations!", err)
 		}
 	}
 
-	repo := repository.NewRepo(dbConn)
+	repo := repository.NewRepo(db)
 	srv := server.NewShorterSrv(repo)
-
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)

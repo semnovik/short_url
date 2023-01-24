@@ -23,4 +23,5 @@ vendor/
 .vscode
 
 # Other
-internal/repository/file_with_urls
+file_with_urls
+/file_with_urls
