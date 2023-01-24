@@ -2,9 +2,11 @@ package repository
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"math/rand"
 	"os"
 	"short_url/configs"
@@ -22,12 +24,19 @@ type URLRepo interface {
 	Ping() error
 }
 
-func NewRepo(conn *PostgresRepo) URLRepo {
-	if configs.Config.FileStoragePath != "" {
-		return NewFileRepo(conn)
+func NewRepo(db *sql.DB) URLRepo {
+	if db != nil {
+		log.Print("Selected Postgres DB for repository")
+		return NewPostgresRepo(db)
 	}
 
-	return NewSomeRepo(conn)
+	if configs.Config.FileStoragePath != "" {
+		log.Print("Selected FileStorage for repository")
+		return NewFileRepo()
+	}
+
+	log.Print("Selected InMemory for repository")
+	return NewSomeRepo()
 }
 
 var GenUUID = generateUUID

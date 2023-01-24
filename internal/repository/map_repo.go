@@ -16,11 +16,11 @@ type MapRepo struct {
 	PostgresDB *sql.DB
 }
 
-func NewSomeRepo(postgres *PostgresRepo) *MapRepo {
+func NewSomeRepo() *MapRepo {
 	return &MapRepo{
 		URLs:       make(map[string]string),
 		UserUrls:   make(map[string][]URLObj),
-		PostgresDB: postgres.Conn,
+		PostgresDB: nil,
 	}
 }
 
