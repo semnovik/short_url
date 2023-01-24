@@ -28,6 +28,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router.Post("/", h.SendURL)
 	router.Get("/api/user/urls", h.AllUserURLS)
 	router.Get("/ping", h.Ping)
+	router.Post("/api/shorten/batch", h.Batch)
 
 	return &http.Server{Handler: router, Addr: configs.Config.ServerAddress}
 }
@@ -74,6 +75,10 @@ type RequestShorten struct {
 }
 type ResponseShorten struct {
 	Result string `json:"result"`
+}
+type RequestShortenBatch struct {
+	CorrelationId string `json:"correlation_id"`
+	OriginalId    string `json:"original_url"`
 }
 
 func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
@@ -130,4 +135,24 @@ func (h *shorterSrv) Ping(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("everything is OK with DB"))
 	}
+}
+
+func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
+	var batch []RequestShortenBatch
+
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	err = json.Unmarshal(data, &batch)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	for _, part := range batch {
+		h.repo.AddBatch(configs.Config.BaseURL+"/"+part.CorrelationId, part.OriginalId)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(""))
 }

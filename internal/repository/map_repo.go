@@ -49,9 +49,7 @@ func (r *MapRepo) Get(uuid string) (string, error) {
 }
 
 func (r *MapRepo) AddByUser(userID, originalURL, shortURL string) {
-
 	r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
-
 }
 
 func (r *MapRepo) AllUsersURLS(userID string) []URLObj {
@@ -68,4 +66,9 @@ func (r *MapRepo) Ping() error {
 		return errors.New("something wrong with DB connection")
 	}
 	return r.PostgresDB.Ping()
+}
+
+func (r *MapRepo) AddBatch(shortURL, origURL string) error {
+	r.URLs[shortURL] = origURL
+	return nil
 }
