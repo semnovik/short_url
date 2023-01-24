@@ -70,11 +70,6 @@ func (r *FileRepo) Ping() error {
 	return r.PostgresDB.Ping()
 }
 
-//func (r *FileRepo) AddBatch(shortURL, origURL string) error {
-//	r.mapRepo.URLs[shortURL] = origURL
-//	return nil
-//}
-
 type Event struct {
 	UUID string `json:"UUID"`
 	URL  string `json:"URL"`
