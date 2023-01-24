@@ -167,6 +167,6 @@ func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, _ := json.Marshal(urls)
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write(response)
 }
