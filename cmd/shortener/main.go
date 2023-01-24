@@ -10,8 +10,6 @@ import (
 )
 
 func main() {
-	// iter11
-
 	configs.InitFlags()
 
 	var db *sql.DB
