@@ -119,13 +119,13 @@ func (r *PostgresRepo) Ping() error {
 	return r.Conn.Ping()
 }
 
-func (r *PostgresRepo) AddBatch(shortURL, origURL string) error {
-	_, err := r.Conn.Exec(`
-		INSERT INTO urls (original_url, short_url) 
-		VALUES ($1, $2, $3) 
-		`, origURL, shortURL)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+//func (r *PostgresRepo) AddBatch(shortURL, origURL string) error {
+//	_, err := r.Conn.Exec(`
+//		INSERT INTO urls (original_url, short_url)
+//		VALUES ($1, $2, $3)
+//		`, origURL, shortURL)
+//	if err != nil {
+//		return err
+//	}
+//	return nil
+//}

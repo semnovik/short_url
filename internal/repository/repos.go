@@ -22,7 +22,7 @@ type URLRepo interface {
 	AllUsersURLS(userID string) []URLObj
 	IsUserExist(userID string) bool
 	Ping() error
-	AddBatch(shortURL, origURL string) error
+	//AddBatch(shortURL, origURL string) error
 }
 
 func NewRepo(db *sql.DB) URLRepo {

@@ -68,7 +68,7 @@ func (r *MapRepo) Ping() error {
 	return r.PostgresDB.Ping()
 }
 
-func (r *MapRepo) AddBatch(shortURL, origURL string) error {
-	r.URLs[shortURL] = origURL
-	return nil
-}
+//func (r *MapRepo) AddBatch(shortURL, origURL string) error {
+//	r.URLs[shortURL] = origURL
+//	return nil
+//}
