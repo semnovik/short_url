@@ -62,7 +62,7 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 
 	uuid, err := h.repo.AddByUser(userID, string(request))
 	if err != nil {
-		if err != nil && uuid != "" {
+		if uuid != "" {
 			w.WriteHeader(http.StatusConflict)
 			w.Write([]byte(configs.Config.BaseURL + "/" + uuid))
 			return
@@ -97,7 +97,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 
 	uuid, err := h.repo.AddByUser(userID, req.URL)
 	if err != nil {
-		if err != nil && uuid != "" {
+		if uuid != "" {
 			w.WriteHeader(http.StatusConflict)
 			shortenURL := configs.Config.BaseURL + "/" + uuid
 
