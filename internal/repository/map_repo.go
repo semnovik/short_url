@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"short_url/configs"
 )
 
 type URLObj struct {
@@ -49,7 +50,12 @@ func (r *MapRepo) Get(uuid string) (string, error) {
 }
 
 func (r *MapRepo) AllUsersURLS(userID string) []URLObj {
-	return r.UserUrls[userID]
+	var result []URLObj
+	for _, part := range r.UserUrls[userID] {
+		part.ShortURL = configs.Config.BaseURL + "/" + part.ShortURL
+		result = append(result, part)
+	}
+	return result
 }
 
 func (r *MapRepo) IsUserExist(userID string) bool {

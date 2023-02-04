@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"short_url/configs"
 )
 
 type FileRepo struct {
@@ -51,7 +52,12 @@ func (r *FileRepo) Get(uuid string) (string, error) {
 }
 
 func (r *FileRepo) AllUsersURLS(userID string) []URLObj {
-	return r.mapRepo.UserUrls[userID]
+	var result []URLObj
+	for _, part := range r.mapRepo.UserUrls[userID] {
+		part.ShortURL = configs.Config.BaseURL + "/" + part.ShortURL
+		result = append(result, part)
+	}
+	return result
 }
 
 func (r *FileRepo) IsUserExist(userID string) bool {
