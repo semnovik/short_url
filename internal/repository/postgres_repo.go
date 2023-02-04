@@ -73,11 +73,11 @@ func (r *PostgresRepo) AddByUser(userID, originalURL string) (string, error) {
 
 		_, err1 := r.Conn.Exec(query, params...)
 		if ErrAlreadyExist(err1) {
-			uuid, err2 := r.GetShortByOriginal(originalURL)
+			uuidFromRepo, err2 := r.GetShortByOriginal(originalURL)
 			if err2 != nil {
 				return "", err2
 			}
-			return uuid, err1
+			return uuidFromRepo, err1
 		}
 		return uuid, nil
 	}
