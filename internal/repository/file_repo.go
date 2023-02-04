@@ -50,10 +50,6 @@ func (r *FileRepo) Get(uuid string) (string, error) {
 	return r.mapRepo.Get(uuid)
 }
 
-//func (r *FileRepo) AddByUser(userID, originalURL, shortURL string) {
-//	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
-//}
-
 func (r *FileRepo) AllUsersURLS(userID string) []URLObj {
 	return r.mapRepo.UserUrls[userID]
 }
@@ -73,9 +69,28 @@ func (r *FileRepo) Ping() error {
 func (r *FileRepo) AddByUser(userID, originalURL string) (string, error) {
 	var uuid string
 
+	for uuidMemo, origFromMemo := range r.mapRepo.URLs {
+		if origFromMemo == originalURL {
+			return uuidMemo, errors.New(`already exists`)
+		}
+	}
+
 	for {
 		uuid = GenUUID()
+		if _, ok := r.mapRepo.URLs[uuid]; !ok {
+			r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: uuid})
+			r.mapRepo.URLs[uuid] = originalURL
+
+			if r.File != nil {
+				err := writeURLInFile(r.File, uuid, originalURL)
+				if err != nil {
+					return "", err
+				}
+			}
+			break
+		}
 	}
+
 	return uuid, nil
 }
 
