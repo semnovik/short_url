@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"log"
 	"short_url/configs"
 )
 
@@ -49,14 +50,36 @@ func (r *PostgresRepo) Get(uuid string) (string, error) {
 	return originalURL, nil
 }
 
-func (r *PostgresRepo) AddByUser(userID, originalURL, shortURL string) {
-	_, err := r.Conn.Exec(`
-		UPDATE urls 
-		SET user_uuid=$1
-		WHERE short_url=$2 AND original_url=$3
-	`, userID, shortURL, originalURL)
-	if err != nil {
-		log.Print(err)
+func ErrAlreadyExist(err error) bool {
+	newErr, ok := err.(*pgconn.PgError)
+	return ok && newErr.Code == pgerrcode.UniqueViolation
+}
+
+func (r *PostgresRepo) AddByUser(userID, originalURL string) (string, error) {
+	var uuid string
+
+	for {
+		uuid = GenUUID()
+
+		params := []interface{}{
+			originalURL,
+			uuid,
+			userID,
+		}
+
+		query := `INSERT INTO 
+				  urls (original_url, short_url, user_uuid)
+		          VALUES ($1, $2, $3)`
+
+		_, err1 := r.Conn.Exec(query, params...)
+		if ErrAlreadyExist(err1) {
+			uuid, err2 := r.GetShortByOriginal(originalURL)
+			if err2 != nil {
+				return "", err2
+			}
+			return uuid, err1
+		}
+		return uuid, nil
 	}
 }
 
@@ -81,6 +104,7 @@ func (r *PostgresRepo) AllUsersURLS(userID string) []URLObj {
 		if err != nil {
 			return nil
 		}
+		urlByUser.ShortURL = configs.Config.BaseURL + "/" + urlByUser.ShortURL
 		urlsByUser = append(urlsByUser, urlByUser)
 	}
 
@@ -117,4 +141,18 @@ func (r *PostgresRepo) Ping() error {
 		return errors.New("something wrong with DB-connection")
 	}
 	return r.Conn.Ping()
+}
+
+func (r *PostgresRepo) GetShortByOriginal(originalURL string) (string, error) {
+	var uuid string
+	query := `SELECT short_url
+			  FROM urls
+			  WHERE original_url=$1`
+
+	row := r.Conn.QueryRow(query, originalURL)
+	err := row.Scan(&uuid)
+	if err != nil {
+		return "", err
+	}
+	return uuid, nil
 }

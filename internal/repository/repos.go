@@ -18,7 +18,7 @@ import (
 type URLRepo interface {
 	Add(url string) (string, error)
 	Get(uuid string) (url string, err error)
-	AddByUser(userID, originalURL, shortURL string)
+	AddByUser(userID, originalURL string) (string, error)
 	AllUsersURLS(userID string) []URLObj
 	IsUserExist(userID string) bool
 	Ping() error
@@ -29,14 +29,15 @@ func NewRepo(db *sql.DB) URLRepo {
 		log.Print("Selected Postgres DB for repository")
 		return NewPostgresRepo(db)
 	}
+	return nil
 
-	if configs.Config.FileStoragePath != "" {
-		log.Print("Selected FileStorage for repository")
-		return NewFileRepo()
-	}
-
-	log.Print("Selected InMemory for repository")
-	return NewSomeRepo()
+	//if configs.Config.FileStoragePath != "" {
+	//	log.Print("Selected FileStorage for repository")
+	//	return NewFileRepo()
+	//}
+	//
+	//log.Print("Selected InMemory for repository")
+	//return NewSomeRepo()
 }
 
 var GenUUID = generateUUID
@@ -45,7 +46,7 @@ func generateUUID() string {
 	var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	randUUID := make([]byte, 5)
+	randUUID := make([]byte, 10)
 
 	for i := range randUUID {
 		randUUID[i] = charset[seededRand.Intn(len(charset))]

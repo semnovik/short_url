@@ -36,3 +36,6 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+//todo tests for repo layer
+//todo tests for transport layer
