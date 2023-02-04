@@ -79,8 +79,9 @@ func (r *PostgresRepo) AddByUser(userID, originalURL string) (string, error) {
 			}
 			return uuidFromRepo, err1
 		}
-		return uuid, nil
+		break
 	}
+	return uuid, nil
 }
 
 func (r *PostgresRepo) AllUsersURLS(userID string) []URLObj {
