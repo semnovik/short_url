@@ -29,15 +29,14 @@ func NewRepo(db *sql.DB) URLRepo {
 		log.Print("Selected Postgres DB for repository")
 		return NewPostgresRepo(db)
 	}
-	return nil
 
-	//if configs.Config.FileStoragePath != "" {
-	//	log.Print("Selected FileStorage for repository")
-	//	return NewFileRepo()
-	//}
-	//
-	//log.Print("Selected InMemory for repository")
-	//return NewSomeRepo()
+	if configs.Config.FileStoragePath != "" {
+		log.Print("Selected FileStorage for repository")
+		return NewFileRepo()
+	}
+
+	log.Print("Selected InMemory for repository")
+	return NewSomeRepo()
 }
 
 var GenUUID = generateUUID

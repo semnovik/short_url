@@ -50,9 +50,9 @@ func (r *FileRepo) Get(uuid string) (string, error) {
 	return r.mapRepo.Get(uuid)
 }
 
-func (r *FileRepo) AddByUser(userID, originalURL, shortURL string) {
-	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
-}
+//func (r *FileRepo) AddByUser(userID, originalURL, shortURL string) {
+//	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
+//}
 
 func (r *FileRepo) AllUsersURLS(userID string) []URLObj {
 	return r.mapRepo.UserUrls[userID]
@@ -68,6 +68,15 @@ func (r *FileRepo) Ping() error {
 		return errors.New("something wrong with DB-connection")
 	}
 	return r.PostgresDB.Ping()
+}
+
+func (r *FileRepo) AddByUser(userID, originalURL string) (string, error) {
+	var uuid string
+
+	for {
+		uuid = GenUUID()
+	}
+	return uuid, nil
 }
 
 type Event struct {

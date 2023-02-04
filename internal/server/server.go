@@ -76,24 +76,6 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(configs.Config.BaseURL + "/" + uuid))
 }
 
-type RequestShorten struct {
-	URL string `json:"url"`
-}
-
-type ResponseShorten struct {
-	Result string `json:"result"`
-}
-
-type RequestShortenBatch struct {
-	CorrelationID string `json:"correlation_id"`
-	OriginalID    string `json:"original_url"`
-}
-
-type ResponseShortenBatch struct {
-	CorrelationID string `json:"correlation_id"`
-	ShortURL      string `json:"short_url"`
-}
-
 func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 	userID, isUserExist := checkUserExist(r, h.repo)
 
@@ -185,4 +167,22 @@ func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
 	response, _ := json.Marshal(urls)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(response)
+}
+
+type RequestShorten struct {
+	URL string `json:"url"`
+}
+
+type ResponseShorten struct {
+	Result string `json:"result"`
+}
+
+type RequestShortenBatch struct {
+	CorrelationID string `json:"correlation_id"`
+	OriginalID    string `json:"original_url"`
+}
+
+type ResponseShortenBatch struct {
+	CorrelationID string `json:"correlation_id"`
+	ShortURL      string `json:"short_url"`
 }
