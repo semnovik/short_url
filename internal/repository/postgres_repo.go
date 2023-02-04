@@ -56,31 +56,28 @@ func ErrAlreadyExist(err error) bool {
 }
 
 func (r *PostgresRepo) AddByUser(userID, originalURL string) (string, error) {
-	var uuid string
 
-	for {
-		uuid = GenUUID()
+	uuid := GenUUID()
 
-		params := []interface{}{
-			originalURL,
-			uuid,
-			userID,
-		}
+	params := []interface{}{
+		originalURL,
+		uuid,
+		userID,
+	}
 
-		query := `INSERT INTO 
+	query := `INSERT INTO 
 				  urls (original_url, short_url, user_uuid)
 		          VALUES ($1, $2, $3)`
 
-		_, err1 := r.Conn.Exec(query, params...)
-		if ErrAlreadyExist(err1) {
-			uuidFromRepo, err2 := r.GetShortByOriginal(originalURL)
-			if err2 != nil {
-				return "", err2
-			}
-			return uuidFromRepo, err1
+	_, err1 := r.Conn.Exec(query, params...)
+	if ErrAlreadyExist(err1) {
+		uuidFromRepo, err2 := r.GetShortByOriginal(originalURL)
+		if err2 != nil {
+			return "", err2
 		}
-		break
+		return uuidFromRepo, err1
 	}
+
 	return uuid, nil
 }
 
