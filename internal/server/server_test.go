@@ -152,3 +152,44 @@ func TestShorterSrv_SendURL_Conflict(t *testing.T) {
 	require.Equal(t, http.StatusConflict, resp.StatusCode)
 	require.Equal(t, configs.Config.BaseURL+"/"+"shortUUID", string(resBody))
 }
+
+func TestShorterSrv_Batch_HappyPass(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	t.Cleanup(func() {
+		ctrl.Finish()
+	})
+
+	repo := mock_repository.NewMockURLRepo(ctrl)
+	server := NewShorterSrv(repo)
+
+	repo.EXPECT().Add("https://second.com").Return("firstUUID", nil)
+	repo.EXPECT().Add("https://first.com").Return("secondUUID", nil)
+
+	requestShortenBatch, err := json.Marshal(&[]RequestShortenBatch{
+		{"first", "https://second.com"},
+		{"second", "https://first.com"},
+	})
+	require.NoError(t, err)
+
+	rw := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/api/shorten/batch", bytes.NewReader(requestShortenBatch))
+
+	server.Handler.ServeHTTP(rw, req)
+
+	resp := rw.Result()
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	var respPayload []ResponseShortenBatch
+	err = json.NewDecoder(resp.Body).Decode(&respPayload)
+	require.NoError(t, err)
+
+	require.Equal(t, 2, len(respPayload))
+	require.Equal(t, "first", respPayload[0].CorrelationID)
+	require.Equal(t, configs.Config.BaseURL+"/"+"firstUUID", respPayload[0].ShortURL)
+
+	require.Equal(t, "second", respPayload[1].CorrelationID)
+	require.Equal(t, configs.Config.BaseURL+"/"+"secondUUID", respPayload[1].ShortURL)
+}
