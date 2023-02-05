@@ -193,3 +193,32 @@ func TestShorterSrv_Batch_HappyPass(t *testing.T) {
 	require.Equal(t, "second", respPayload[1].CorrelationID)
 	require.Equal(t, configs.Config.BaseURL+"/"+"secondUUID", respPayload[1].ShortURL)
 }
+
+func TestShorterSrv_GetFullURL(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	t.Cleanup(func() {
+		ctrl.Finish()
+	})
+
+	repo := mock_repository.NewMockURLRepo(ctrl)
+	server := NewShorterSrv(repo)
+
+	repo.EXPECT().Get("someUUID").Return("https://google.com", nil)
+
+	rw := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/someUUID", nil)
+
+	server.Handler.ServeHTTP(rw, req)
+
+	respPayload := rw.Result()
+	response, err := io.ReadAll(respPayload.Body)
+	require.NoError(t, err)
+	defer respPayload.Body.Close()
+
+	locationHeader := respPayload.Header.Get("Location")
+
+	require.Equal(t, http.StatusTemporaryRedirect, respPayload.StatusCode)
+	require.Equal(t, "https://google.com", locationHeader)
+	require.Equal(t, "", string(response))
+}
