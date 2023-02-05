@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	//iter13
+	//iter13 test
 	configs.InitFlags()
 
 	var db *sql.DB
