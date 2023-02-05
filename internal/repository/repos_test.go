@@ -33,3 +33,9 @@ package repository
 //	require.Error(t, err)
 //	require.Equal(t, "", goURL)
 //}
+
+//func TestPostgresRepo_Add(t *testing.T) {
+//	configs.Config.DatabaseDSN = "Not empty"
+//
+//	repo := mock_repository.MockURLRepo{}
+//}
