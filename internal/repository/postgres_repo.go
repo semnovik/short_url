@@ -27,7 +27,7 @@ func (r *PostgresRepo) Add(url string) (string, error) {
 		_, err := r.Conn.Exec(`
 			INSERT INTO urls (original_url, short_url)
 			VALUES ($1, $2)
-		`, url, configs.Config.BaseURL+"/"+uuid)
+		`, url, uuid)
 		if err != nil {
 			return "", err
 		}
@@ -42,7 +42,7 @@ func (r *PostgresRepo) Add(url string) (string, error) {
 
 func (r *PostgresRepo) Get(uuid string) (string, error) {
 	var originalURL string
-	err := r.Conn.QueryRow("SELECT original_url FROM urls WHERE short_url=$1", configs.Config.BaseURL+"/"+uuid).Scan(&originalURL)
+	err := r.Conn.QueryRow("SELECT original_url FROM urls WHERE short_url=$1", uuid).Scan(&originalURL)
 	if err != nil {
 		return "", err
 	}

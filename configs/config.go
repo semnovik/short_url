@@ -35,7 +35,7 @@ func InitFlags() {
 		flag.StringVar(&Config.FileStoragePath, "f", "./file_with_urls", "path to file with urls")
 	}
 	if _, exist := os.LookupEnv("DATABASE_DSN"); !exist {
-		flag.StringVar(&Config.DatabaseDSN, "d", "", "dsn for db")
+		flag.StringVar(&Config.DatabaseDSN, "d", "host=db port=5432 dbname=admin user=admin password=password", "dsn for db")
 		// host=localhost port=5438 dbname=admin user=admin password=password - local
 		// host=db port=5432 dbname=admin user=admin password=password - inside docker
 	}

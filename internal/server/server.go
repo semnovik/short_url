@@ -36,14 +36,14 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	urlID := chi.URLParam(r, "id")
 
-	URL, err := h.repo.Get(urlID)
+	url, err := h.repo.Get(urlID)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Location", URL)
+	w.Header().Set("Location", url)
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
