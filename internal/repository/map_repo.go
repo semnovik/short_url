@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"short_url/configs"
 )
 
 type URLObj struct {
@@ -48,12 +49,13 @@ func (r *MapRepo) Get(uuid string) (string, error) {
 	return url, nil
 }
 
-func (r *MapRepo) AddByUser(userID, originalURL, shortURL string) {
-	r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
-}
-
 func (r *MapRepo) AllUsersURLS(userID string) []URLObj {
-	return r.UserUrls[userID]
+	var result []URLObj
+	for _, part := range r.UserUrls[userID] {
+		part.ShortURL = configs.Config.BaseURL + "/" + part.ShortURL
+		result = append(result, part)
+	}
+	return result
 }
 
 func (r *MapRepo) IsUserExist(userID string) bool {
@@ -66,4 +68,25 @@ func (r *MapRepo) Ping() error {
 		return errors.New("something wrong with DB connection")
 	}
 	return r.PostgresDB.Ping()
+}
+
+func (r *MapRepo) AddByUser(userID, originalURL string) (string, error) {
+	var uuid string
+
+	for uuidMemo, origFromMemo := range r.URLs {
+		if origFromMemo == originalURL {
+			return uuidMemo, errors.New(`already exists`)
+		}
+	}
+
+	for {
+		uuid = GenUUID()
+		if _, ok := r.URLs[uuid]; !ok {
+			r.UserUrls[userID] = append(r.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: uuid})
+			r.URLs[uuid] = originalURL
+			break
+		}
+	}
+
+	return uuid, nil
 }

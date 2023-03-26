@@ -60,32 +60,20 @@ func (h *shorterSrv) SendURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	urlID, err := h.repo.Add(string(request))
+	uuid, err := h.repo.AddByUser(userID, string(request))
 	if err != nil {
+		if uuid != "" {
+			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte(configs.Config.BaseURL + "/" + uuid))
+			return
+		}
+
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	h.repo.AddByUser(userID, string(request), configs.Config.BaseURL+"/"+urlID)
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(configs.Config.BaseURL + "/" + urlID))
-}
-
-type RequestShorten struct {
-	URL string `json:"url"`
-}
-
-type ResponseShorten struct {
-	Result string `json:"result"`
-}
-
-type RequestShortenBatch struct {
-	CorrelationID string `json:"correlation_id"`
-	OriginalID    string `json:"original_url"`
-}
-
-type ResponseShortenBatch struct {
-	CorrelationID string `json:"correlation_id"`
-	ShortURL      string `json:"short_url"`
+	w.Write([]byte(configs.Config.BaseURL + "/" + uuid))
 }
 
 func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
@@ -106,12 +94,22 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	uuid, err := h.repo.Add(req.URL)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 
-	h.repo.AddByUser(userID, req.URL, configs.Config.BaseURL+"/"+uuid)
+	uuid, err := h.repo.AddByUser(userID, req.URL)
+	if err != nil {
+		if uuid != "" {
+			w.WriteHeader(http.StatusConflict)
+			shortenURL := configs.Config.BaseURL + "/" + uuid
+
+			respBody := ResponseShorten{Result: shortenURL}
+			response, _ := json.Marshal(respBody)
+			w.Write(response)
+			return
+		}
+
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	shortenURL := configs.Config.BaseURL + "/" + uuid
 

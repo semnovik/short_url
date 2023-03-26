@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"io"
 	"os"
+	"short_url/configs"
 )
 
 type FileRepo struct {
@@ -50,12 +52,13 @@ func (r *FileRepo) Get(uuid string) (string, error) {
 	return r.mapRepo.Get(uuid)
 }
 
-func (r *FileRepo) AddByUser(userID, originalURL, shortURL string) {
-	r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: shortURL})
-}
-
 func (r *FileRepo) AllUsersURLS(userID string) []URLObj {
-	return r.mapRepo.UserUrls[userID]
+	var result []URLObj
+	for _, part := range r.mapRepo.UserUrls[userID] {
+		part.ShortURL = configs.Config.BaseURL + "/" + part.ShortURL
+		result = append(result, part)
+	}
+	return result
 }
 
 func (r *FileRepo) IsUserExist(userID string) bool {
@@ -68,6 +71,34 @@ func (r *FileRepo) Ping() error {
 		return errors.New("something wrong with DB-connection")
 	}
 	return r.PostgresDB.Ping()
+}
+
+func (r *FileRepo) AddByUser(userID, originalURL string) (string, error) {
+	var uuid string
+
+	for uuidMemo, origFromMemo := range r.mapRepo.URLs {
+		if origFromMemo == originalURL {
+			return uuidMemo, errors.New(`already exists`)
+		}
+	}
+
+	for {
+		uuid = GenUUID()
+		if _, ok := r.mapRepo.URLs[uuid]; !ok {
+			r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: uuid})
+			r.mapRepo.URLs[uuid] = originalURL
+
+			if r.File != nil {
+				err := writeURLInFile(r.File, uuid, originalURL)
+				if err != nil {
+					return "", err
+				}
+			}
+			break
+		}
+	}
+
+	return uuid, nil
 }
 
 type Event struct {
@@ -102,4 +133,31 @@ func writeURLInFile(file *os.File, uuid string, url string) error {
 	}
 
 	return nil
+}
+
+func fillRepoFromFile() (*os.File, map[string]string, error) {
+	file, err := os.OpenFile(configs.Config.FileStoragePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+
+	if err != nil {
+		file = nil
+	}
+	urls := make(map[string]string)
+
+	reader := bufio.NewReader(file)
+	for {
+		data, err := reader.ReadBytes('\n')
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		event := Event{}
+		err = json.Unmarshal(data, &event)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		urls[event.UUID] = event.URL
+	}
+
+	return file, urls, nil
 }

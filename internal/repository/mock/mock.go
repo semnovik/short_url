@@ -50,15 +50,18 @@ func (mr *MockURLRepoMockRecorder) Add(url interface{}) *gomock.Call {
 }
 
 // AddByUser mocks base method.
-func (m *MockURLRepo) AddByUser(userID, originalURL, shortURL string) {
+func (m *MockURLRepo) AddByUser(userID, originalURL string) (string, error) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AddByUser", userID, originalURL, shortURL)
+	ret := m.ctrl.Call(m, "AddByUser", userID, originalURL)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // AddByUser indicates an expected call of AddByUser.
-func (mr *MockURLRepoMockRecorder) AddByUser(userID, originalURL, shortURL interface{}) *gomock.Call {
+func (mr *MockURLRepoMockRecorder) AddByUser(userID, originalURL interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddByUser", reflect.TypeOf((*MockURLRepo)(nil).AddByUser), userID, originalURL, shortURL)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddByUser", reflect.TypeOf((*MockURLRepo)(nil).AddByUser), userID, originalURL)
 }
 
 // AllUsersURLS mocks base method.
@@ -102,4 +105,18 @@ func (m *MockURLRepo) IsUserExist(userID string) bool {
 func (mr *MockURLRepoMockRecorder) IsUserExist(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsUserExist", reflect.TypeOf((*MockURLRepo)(nil).IsUserExist), userID)
+}
+
+// Ping mocks base method.
+func (m *MockURLRepo) Ping() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Ping")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Ping indicates an expected call of Ping.
+func (mr *MockURLRepoMockRecorder) Ping() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockURLRepo)(nil).Ping))
 }

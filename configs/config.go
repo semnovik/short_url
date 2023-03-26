@@ -32,7 +32,7 @@ func InitFlags() {
 		flag.StringVar(&Config.BaseURL, "b", "http://localhost:8080", "base URL of the server")
 	}
 	if _, exist := os.LookupEnv("FILE_STORAGE_PATH"); !exist {
-		flag.StringVar(&Config.FileStoragePath, "f", "./internal/repository/file_with_urls", "path to file with urls")
+		flag.StringVar(&Config.FileStoragePath, "f", "./file_with_urls", "path to file with urls")
 	}
 	if _, exist := os.LookupEnv("DATABASE_DSN"); !exist {
 		flag.StringVar(&Config.DatabaseDSN, "d", "", "dsn for db")
