@@ -7,6 +7,7 @@ import (
 	"short_url/configs"
 	"short_url/internal/repository"
 	"short_url/internal/server"
+	"time"
 )
 
 func main() {
@@ -23,9 +24,10 @@ func main() {
 		}
 		defer db.Close()
 
+		time.Sleep(10 * time.Second)
 		err = goose.Up(db, configs.Config.MigrationsDir, goose.WithAllowMissing())
 		if err != nil {
-			log.Print("Cannot make migrations!", err)
+			log.Print("Cannot make migrations: ", err)
 		}
 	}
 
