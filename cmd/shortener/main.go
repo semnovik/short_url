@@ -24,11 +24,12 @@ func main() {
 		}
 		defer db.Close()
 
-		time.Sleep(10 * time.Second)
+		time.Sleep(3 * time.Second)
 		err = goose.Up(db, configs.Config.MigrationsDir, goose.WithAllowMissing())
 		if err != nil {
 			log.Print("Cannot make migrations: ", err)
 		}
+		time.Sleep(3 * time.Second)
 	}
 
 	repo := repository.NewRepo(db)
