@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"short_url/configs"
 	"short_url/internal/repository"
+	"short_url/pkg"
 )
 
 type shorterSrv struct {
@@ -29,6 +30,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router.Get("/api/user/urls", h.AllUserURLS)
 	router.Get("/ping", h.Ping)
 	router.Post("/api/shorten/batch", h.Batch)
+	router.Delete("/api/user/urls", h.DeleteURLs)
 
 	return &http.Server{Handler: router, Addr: configs.Config.ServerAddress}
 }
@@ -83,7 +85,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		userID = setNewUserToken(w)
 	}
 
-	req := RequestShorten{}
+	req := pkg.RequestShorten{}
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -101,7 +103,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusConflict)
 			shortenURL := configs.Config.BaseURL + "/" + uuid
 
-			respBody := ResponseShorten{Result: shortenURL}
+			respBody := pkg.ResponseShorten{Result: shortenURL}
 			response, _ := json.Marshal(respBody)
 			w.Write(response)
 			return
@@ -113,7 +115,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 
 	shortenURL := configs.Config.BaseURL + "/" + uuid
 
-	respBody := ResponseShorten{Result: shortenURL}
+	respBody := pkg.ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
 
 	w.WriteHeader(http.StatusCreated)
@@ -143,8 +145,8 @@ func (h *shorterSrv) Ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
-	var batch []RequestShortenBatch
-	var urls []ResponseShortenBatch
+	var batch []pkg.RequestShortenBatch
+	var urls []pkg.ResponseShortenBatch
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -161,10 +163,17 @@ func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		urls = append(urls, ResponseShortenBatch{CorrelationID: part.CorrelationID, ShortURL: configs.Config.BaseURL + "/" + shortURL})
+		urls = append(urls, pkg.ResponseShortenBatch{CorrelationID: part.CorrelationID, ShortURL: configs.Config.BaseURL + "/" + shortURL})
 	}
 
 	response, _ := json.Marshal(urls)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(response)
+}
+
+func (h *shorterSrv) DeleteURLs(w http.ResponseWriter, r *http.Request) {
+	userID, _ := checkUserExist(r, h.repo)
+
+	w.WriteHeader(http.StatusAccepted)
+	w.Write([]byte(userID))
 }

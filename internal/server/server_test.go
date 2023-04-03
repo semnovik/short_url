@@ -12,6 +12,7 @@ import (
 	"short_url/configs"
 	"short_url/internal/repository"
 	mock_repository "short_url/internal/repository/mock"
+	"short_url/pkg"
 	"testing"
 )
 
@@ -31,7 +32,7 @@ func TestShorterSrv_Shorten_HappyPass(t *testing.T) {
 
 	repo.EXPECT().AddByUser("328226", "https://github.com/semnovik/").Return("shortUUID", nil)
 
-	requestShoeten, err := json.Marshal(&RequestShorten{URL: "https://github.com/semnovik/"})
+	requestShoeten, err := json.Marshal(&pkg.RequestShorten{URL: "https://github.com/semnovik/"})
 	require.NoError(t, err)
 
 	rw := httptest.NewRecorder()
@@ -44,7 +45,7 @@ func TestShorterSrv_Shorten_HappyPass(t *testing.T) {
 
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 
-	respPayload := new(ResponseShorten)
+	respPayload := new(pkg.ResponseShorten)
 	err = json.NewDecoder(resp.Body).Decode(respPayload)
 	require.NoError(t, err)
 
@@ -67,7 +68,7 @@ func TestShorterSrv_Shorten_Conflict(t *testing.T) {
 
 	repo.EXPECT().AddByUser("328226", "https://github.com/semnovik/").Return("shortUUID", errors.New(`already exists`))
 
-	requestShoeten, err := json.Marshal(&RequestShorten{URL: "https://github.com/semnovik/"})
+	requestShoeten, err := json.Marshal(&pkg.RequestShorten{URL: "https://github.com/semnovik/"})
 	require.NoError(t, err)
 
 	rw := httptest.NewRecorder()
@@ -80,7 +81,7 @@ func TestShorterSrv_Shorten_Conflict(t *testing.T) {
 
 	require.Equal(t, http.StatusConflict, resp.StatusCode)
 
-	respPayload := new(ResponseShorten)
+	respPayload := new(pkg.ResponseShorten)
 	err = json.NewDecoder(resp.Body).Decode(respPayload)
 	require.NoError(t, err)
 
@@ -166,7 +167,7 @@ func TestShorterSrv_Batch_HappyPass(t *testing.T) {
 	repo.EXPECT().Add("https://second.com").Return("firstUUID", nil)
 	repo.EXPECT().Add("https://first.com").Return("secondUUID", nil)
 
-	requestShortenBatch, err := json.Marshal(&[]RequestShortenBatch{
+	requestShortenBatch, err := json.Marshal(&[]pkg.RequestShortenBatch{
 		{"first", "https://second.com"},
 		{"second", "https://first.com"},
 	})
@@ -182,7 +183,7 @@ func TestShorterSrv_Batch_HappyPass(t *testing.T) {
 
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 
-	var respPayload []ResponseShortenBatch
+	var respPayload []pkg.ResponseShortenBatch
 	err = json.NewDecoder(resp.Body).Decode(&respPayload)
 	require.NoError(t, err)
 

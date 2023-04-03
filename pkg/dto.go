@@ -1,4 +1,4 @@
-package server
+package pkg
 
 type RequestShorten struct {
 	URL string `json:"url"`
