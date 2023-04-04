@@ -9,6 +9,7 @@ import (
 type URLObj struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
+	IsDeleted   bool   `json:"is_deleted"`
 }
 
 type MapRepo struct {
@@ -35,18 +36,18 @@ func (r *MapRepo) Add(url string) (string, error) {
 	}
 }
 
-func (r *MapRepo) Get(uuid string) (string, error) {
+func (r *MapRepo) Get(uuid string) (string, bool, error) {
 	if uuid == "" {
-		return "", errors.New("id of url isn't set")
+		return "", false, errors.New("id of url isn't set")
 	}
 
 	url := r.URLs[uuid]
 
 	if url == "" {
-		return "", errors.New("url with that id is not found")
+		return "", false, errors.New("url with that id is not found")
 	}
 
-	return url, nil
+	return url, false, nil
 }
 
 func (r *MapRepo) AllUsersURLS(userID string) []URLObj {
@@ -89,4 +90,12 @@ func (r *MapRepo) AddByUser(userID, originalURL string) (string, error) {
 	}
 
 	return uuid, nil
+}
+
+func (r *MapRepo) DeleteByUUID(uuid, userId string) {
+	for _, v := range r.UserUrls[userId] {
+		if v.ShortURL == uuid {
+			v.IsDeleted = true
+		}
+	}
 }

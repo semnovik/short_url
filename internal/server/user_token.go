@@ -67,7 +67,7 @@ func decode(msg string) (string, error) {
 	return string(decrypted), nil
 }
 
-func checkUserExist(r *http.Request, repo repository.URLRepo) (string, bool) {
+func checkUserExist(r *http.Request, repo repository.URLStorage) (string, bool) {
 	cookies := r.Cookies()
 	var userExist bool
 	var userID string

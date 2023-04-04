@@ -11,7 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockURLRepo is a mock of URLRepo interface.
+// MockURLRepo is a mock of URLStorage interface.
 type MockURLRepo struct {
 	ctrl     *gomock.Controller
 	recorder *MockURLRepoMockRecorder

@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"io"
@@ -13,10 +14,10 @@ import (
 )
 
 type shorterSrv struct {
-	repo repository.URLRepo
+	repo repository.URLStorage
 }
 
-func NewShorterSrv(repo repository.URLRepo) *http.Server {
+func NewShorterSrv(repo repository.URLStorage) *http.Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.SetHeader("Content-Type", "application/json"))
@@ -38,7 +39,12 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	urlID := chi.URLParam(r, "id")
 
-	url, err := h.repo.Get(urlID)
+	url, isDeleted, err := h.repo.Get(urlID)
+
+	if isDeleted {
+		w.WriteHeader(http.StatusGone)
+		return
+	}
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -174,6 +180,22 @@ func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
 func (h *shorterSrv) DeleteURLs(w http.ResponseWriter, r *http.Request) {
 	userID, _ := checkUserExist(r, h.repo)
 
+	request, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var urls []string
+	_ = json.Unmarshal(request, &urls)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	for _, uuid := range urls {
+		h.repo.DeleteByUUID(uuid, userID)
+	}
+	fmt.Print(userID)
 	w.WriteHeader(http.StatusAccepted)
-	w.Write([]byte(userID))
 }

@@ -48,7 +48,7 @@ func (r *FileRepo) Add(url string) (string, error) {
 	}
 }
 
-func (r *FileRepo) Get(uuid string) (string, error) {
+func (r *FileRepo) Get(uuid string) (string, bool, error) {
 	return r.mapRepo.Get(uuid)
 }
 
@@ -99,6 +99,10 @@ func (r *FileRepo) AddByUser(userID, originalURL string) (string, error) {
 	}
 
 	return uuid, nil
+}
+
+func (r *FileRepo) DeleteByUUID(uuid, userID string) {
+	r.mapRepo.DeleteByUUID(uuid, userID)
 }
 
 type Event struct {
