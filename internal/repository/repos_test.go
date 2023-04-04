@@ -18,7 +18,8 @@ func TestSimpleUrlRepo(t *testing.T) {
 	_, err := repo.Add(URL)
 	require.NoError(t, err)
 
-	goURL, err := repo.Get("qwerty")
+	goURL, isDeleted, err := repo.Get("qwerty")
+	require.False(t, isDeleted)
 	require.NoError(t, err)
 	require.Equal(t, URL, goURL)
 }
@@ -28,7 +29,8 @@ func TestGetFromEmptyUrlRepo(t *testing.T) {
 
 	repo := NewRepo(nil)
 
-	goURL, err := repo.Get("qwerty")
+	goURL, isDeleted, err := repo.Get("qwerty")
+	require.False(t, isDeleted)
 	require.Error(t, err)
 	require.Equal(t, "", goURL)
 }

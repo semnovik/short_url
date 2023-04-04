@@ -23,7 +23,7 @@ func TestShorterSrv_Shorten_HappyPass(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	repo := mock_repository.NewMockURLRepo(ctrl)
+	repo := mock_repository.NewMockURLStorage(ctrl)
 	server := NewShorterSrv(repo)
 
 	repository.GenUUID = func() string {
@@ -59,7 +59,7 @@ func TestShorterSrv_Shorten_Conflict(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	repo := mock_repository.NewMockURLRepo(ctrl)
+	repo := mock_repository.NewMockURLStorage(ctrl)
 	server := NewShorterSrv(repo)
 
 	repository.GenUUID = func() string {
@@ -95,7 +95,7 @@ func TestShorterSrv_SendURL_HappyPass(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	repo := mock_repository.NewMockURLRepo(ctrl)
+	repo := mock_repository.NewMockURLStorage(ctrl)
 	server := NewShorterSrv(repo)
 
 	repository.GenUUID = func() string {
@@ -128,7 +128,7 @@ func TestShorterSrv_SendURL_Conflict(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	repo := mock_repository.NewMockURLRepo(ctrl)
+	repo := mock_repository.NewMockURLStorage(ctrl)
 	server := NewShorterSrv(repo)
 
 	repository.GenUUID = func() string {
@@ -161,7 +161,7 @@ func TestShorterSrv_Batch_HappyPass(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	repo := mock_repository.NewMockURLRepo(ctrl)
+	repo := mock_repository.NewMockURLStorage(ctrl)
 	server := NewShorterSrv(repo)
 
 	repo.EXPECT().Add("https://second.com").Return("firstUUID", nil)
@@ -202,10 +202,10 @@ func TestShorterSrv_GetFullURL(t *testing.T) {
 		ctrl.Finish()
 	})
 
-	repo := mock_repository.NewMockURLRepo(ctrl)
+	repo := mock_repository.NewMockURLStorage(ctrl)
 	server := NewShorterSrv(repo)
 
-	repo.EXPECT().Get("someUUID").Return("https://google.com", nil)
+	repo.EXPECT().Get("someUUID").Return("https://google.com", false, nil)
 
 	rw := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/someUUID", nil)
