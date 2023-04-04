@@ -187,7 +187,7 @@ func (h *shorterSrv) DeleteURLs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var urls []string
-	_ = json.Unmarshal(request, &urls)
+	err = json.Unmarshal(request, &urls)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

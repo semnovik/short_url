@@ -17,7 +17,7 @@ type URLStorage interface {
 	AllUsersURLS(userID string) []URLObj
 	IsUserExist(userID string) bool
 	Ping() error
-	DeleteByUUID(uuid, userId string)
+	DeleteByUUID(uuid, userID string)
 }
 
 func NewRepo(db *sql.DB) URLStorage {

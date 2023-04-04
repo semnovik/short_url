@@ -168,8 +168,8 @@ func TestShorterSrv_Batch_HappyPass(t *testing.T) {
 	repo.EXPECT().Add("https://first.com").Return("secondUUID", nil)
 
 	requestShortenBatch, err := json.Marshal(&[]pkg.RequestShortenBatch{
-		{"first", "https://second.com"},
-		{"second", "https://first.com"},
+		{CorrelationID: "first", OriginalID: "https://second.com"},
+		{CorrelationID: "second", OriginalID: "https://first.com"},
 	})
 	require.NoError(t, err)
 
