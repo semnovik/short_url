@@ -93,12 +93,6 @@ func (r *MapRepo) AddByUser(userID, originalURL string) (string, error) {
 }
 
 func (r *MapRepo) DeleteByUUID(uuid, userID string) {
-	var urlToDelete URLObj
-	for _, v := range r.UserUrls[userID] {
-		if v.ShortURL == uuid {
-			urlToDelete = v
-			break
-		}
-	}
-	urlToDelete.IsDeleted = false
+	uuid = "заглушка"
+	userID = "заглушка"
 }
