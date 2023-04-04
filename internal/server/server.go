@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"io"
@@ -11,6 +10,7 @@ import (
 	"short_url/configs"
 	"short_url/internal/repository"
 	"short_url/pkg"
+	"sync"
 )
 
 type shorterSrv struct {
@@ -193,9 +193,26 @@ func (h *shorterSrv) DeleteURLs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, uuid := range urls {
-		h.repo.DeleteByUUID(uuid, userID)
+	for start, end := 0, 0; start <= len(urls)-1; start = end {
+		end = start + batchSize
+		if end > len(urls) {
+			end = len(urls)
+		}
+
+		batch := urls[start:end]
+		var wg sync.WaitGroup
+		for _, i := range batch {
+			x := i
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				h.repo.DeleteByUUID(x, userID)
+			}()
+		}
+		wg.Wait()
 	}
-	fmt.Print(userID)
+
 	w.WriteHeader(http.StatusAccepted)
 }
+
+const batchSize = 10
