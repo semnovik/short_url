@@ -92,5 +92,12 @@ func (r *MapRepo) AddByUser(userID, originalURL string) (string, error) {
 	return uuid, nil
 }
 
-func (r *MapRepo) DeleteByUUID(uuid []string, userID string) {
+func (r *MapRepo) DeleteByUUID(uuids []string, userID string) {
+	for _, v := range r.UserUrls[userID] {
+		for _, uuid := range uuids {
+			if v.ShortURL == uuid {
+				v.IsDeleted = true
+			}
+		}
+	}
 }
