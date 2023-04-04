@@ -79,15 +79,15 @@ func (mr *MockURLStorageMockRecorder) AllUsersURLS(userID interface{}) *gomock.C
 }
 
 // DeleteByUUID mocks base method.
-func (m *MockURLStorage) DeleteByUUID(uuid, userId string) {
+func (m *MockURLStorage) DeleteByUUID(uuid []string, userID string) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "DeleteByUUID", uuid, userId)
+	m.ctrl.Call(m, "DeleteByUUID", uuid, userID)
 }
 
 // DeleteByUUID indicates an expected call of DeleteByUUID.
-func (mr *MockURLStorageMockRecorder) DeleteByUUID(uuid, userId interface{}) *gomock.Call {
+func (mr *MockURLStorageMockRecorder) DeleteByUUID(uuid, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByUUID", reflect.TypeOf((*MockURLStorage)(nil).DeleteByUUID), uuid, userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByUUID", reflect.TypeOf((*MockURLStorage)(nil).DeleteByUUID), uuid, userID)
 }
 
 // Get mocks base method.
