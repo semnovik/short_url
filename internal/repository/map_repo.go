@@ -96,6 +96,7 @@ func (r *MapRepo) DeleteByUUID(uuid, userID string) {
 	for _, v := range r.UserUrls[userID] {
 		if v.ShortURL == uuid {
 			v.IsDeleted = true
+			break
 		}
 	}
 }
