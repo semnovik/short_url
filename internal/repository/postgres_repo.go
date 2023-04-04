@@ -157,8 +157,8 @@ func (r *PostgresRepo) GetShortByOriginal(originalURL string) (string, error) {
 	return uuid, nil
 }
 
-func (r *PostgresRepo) DeleteByUUID(uuid, userID string) {
-	query := `UPDATE urls SET is_deleted=TRUE WHERE short_url=$1 and user_uuid=$2`
+func (r *PostgresRepo) DeleteByUUID(uuid []string, userID string) {
+	query := `UPDATE urls SET is_deleted=TRUE WHERE short_url=ANY($1) and user_uuid=$2`
 
 	_, _ = r.Conn.Exec(query, uuid, userID)
 }

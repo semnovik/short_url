@@ -101,7 +101,7 @@ func (r *FileRepo) AddByUser(userID, originalURL string) (string, error) {
 	return uuid, nil
 }
 
-func (r *FileRepo) DeleteByUUID(uuid, userID string) {
+func (r *FileRepo) DeleteByUUID(uuid []string, userID string) {
 	r.mapRepo.DeleteByUUID(uuid, userID)
 }
 

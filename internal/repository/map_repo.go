@@ -92,5 +92,5 @@ func (r *MapRepo) AddByUser(userID, originalURL string) (string, error) {
 	return uuid, nil
 }
 
-func (r *MapRepo) DeleteByUUID(uuid, userID string) {
+func (r *MapRepo) DeleteByUUID(uuid []string, userID string) {
 }
