@@ -93,6 +93,4 @@ func (r *MapRepo) AddByUser(userID, originalURL string) (string, error) {
 }
 
 func (r *MapRepo) DeleteByUUID(uuid, userID string) {
-	uuid = "заглушка"
-	userID = "заглушка"
 }
