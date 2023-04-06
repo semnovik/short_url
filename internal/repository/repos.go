@@ -10,16 +10,16 @@ import (
 
 //go:generate mockgen -source=repos.go -destination=mock/mock.go
 
-type URLRepo interface {
-	Add(url string) (string, error)
-	Get(uuid string) (url string, err error)
+type URLStorage interface {
+	Get(uuid string) (string, bool, error)
 	AddByUser(userID, originalURL string) (string, error)
 	AllUsersURLS(userID string) []URLObj
 	IsUserExist(userID string) bool
 	Ping() error
+	DeleteByUUID(uuid []string, userID string)
 }
 
-func NewRepo(db *sql.DB) URLRepo {
+func NewRepo(db *sql.DB) URLStorage {
 	if db != nil {
 		log.Print("Selected Postgres DB for repository")
 		return NewPostgresRepo(db)

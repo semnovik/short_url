@@ -20,34 +20,16 @@ func NewPostgresRepo(db *sql.DB) *PostgresRepo {
 	return &PostgresRepo{Conn: db}
 }
 
-func (r *PostgresRepo) Add(url string) (string, error) {
-	for {
-		uuid := GenUUID()
-
-		_, err := r.Conn.Exec(`
-			INSERT INTO urls (original_url, short_url)
-			VALUES ($1, $2)
-		`, url, uuid)
-		if err != nil {
-			return "", err
-		}
-
-		if errors.Is(err, ErrAlreadyExists) {
-			continue
-		}
-
-		return uuid, nil
-	}
-}
-
-func (r *PostgresRepo) Get(uuid string) (string, error) {
+func (r *PostgresRepo) Get(uuid string) (string, bool, error) {
 	var originalURL string
-	err := r.Conn.QueryRow("SELECT original_url FROM urls WHERE short_url=$1", uuid).Scan(&originalURL)
+	var isDeleted bool
+
+	err := r.Conn.QueryRow("SELECT original_url, is_deleted FROM urls WHERE short_url=$1", uuid).Scan(&originalURL, &isDeleted)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
-	return originalURL, nil
+	return originalURL, isDeleted, nil
 }
 
 func ErrAlreadyExist(err error) bool {
@@ -153,4 +135,10 @@ func (r *PostgresRepo) GetShortByOriginal(originalURL string) (string, error) {
 		return "", err
 	}
 	return uuid, nil
+}
+
+func (r *PostgresRepo) DeleteByUUID(uuid []string, userID string) {
+	query := `UPDATE urls SET is_deleted=TRUE WHERE short_url=ANY($1) and user_uuid=$2`
+
+	_, _ = r.Conn.Exec(query, uuid, userID)
 }

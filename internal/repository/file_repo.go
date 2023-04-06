@@ -11,106 +11,78 @@ import (
 )
 
 type FileRepo struct {
-	mapRepo    MapRepo
+	memoryRepo MemoryRepo
 	File       *os.File
 	PostgresDB *sql.DB
 }
 
 func NewFileRepo() *FileRepo {
-	file, urls, err := fillRepoFromFile()
+	file, units, err := fillRepoFromFile()
 	if err != nil {
 		return nil
 	}
 
 	return &FileRepo{
-		mapRepo:    MapRepo{URLs: urls, UserUrls: make(map[string][]URLObj)},
+		memoryRepo: MemoryRepo{Units: units},
 		File:       file,
 		PostgresDB: nil,
 	}
 }
 
-func (r *FileRepo) Add(url string) (string, error) {
-	for {
-		uuid := GenUUID()
-		if _, ok := r.mapRepo.URLs[uuid]; !ok {
-
-			// Если есть интеграция с файлом, то пишем еще и в файл
-			if r.File != nil {
-				err := writeURLInFile(r.File, uuid, url)
-				if err != nil {
-					return "", err
-				}
-			}
-
-			r.mapRepo.URLs[uuid] = url
-			return uuid, nil
-		}
-	}
-}
-
-func (r *FileRepo) Get(uuid string) (string, error) {
-	return r.mapRepo.Get(uuid)
+func (r *FileRepo) Get(uuid string) (string, bool, error) {
+	return r.memoryRepo.Get(uuid)
 }
 
 func (r *FileRepo) AllUsersURLS(userID string) []URLObj {
-	var result []URLObj
-	for _, part := range r.mapRepo.UserUrls[userID] {
-		part.ShortURL = configs.Config.BaseURL + "/" + part.ShortURL
-		result = append(result, part)
-	}
-	return result
+	return r.memoryRepo.AllUsersURLS(userID)
 }
 
-func (r *FileRepo) IsUserExist(userID string) bool {
-	_, ok := r.mapRepo.UserUrls[userID]
-	return ok
+func (r *FileRepo) IsUserExist(userUUID string) bool {
+	return r.memoryRepo.IsUserExist(userUUID)
 }
 
 func (r *FileRepo) Ping() error {
-	if r.PostgresDB == nil {
-		return errors.New("something wrong with DB-connection")
-	}
-	return r.PostgresDB.Ping()
+	return r.memoryRepo.Ping()
 }
 
 func (r *FileRepo) AddByUser(userID, originalURL string) (string, error) {
 	var uuid string
 
-	for uuidMemo, origFromMemo := range r.mapRepo.URLs {
-		if origFromMemo == originalURL {
-			return uuidMemo, errors.New(`already exists`)
+	for _, obj := range r.memoryRepo.Units {
+		if originalURL == obj.OriginalURL {
+			return obj.ShortUUID, errors.New(`already exists`)
 		}
 	}
 
-	for {
-		uuid = GenUUID()
-		if _, ok := r.mapRepo.URLs[uuid]; !ok {
-			r.mapRepo.UserUrls[userID] = append(r.mapRepo.UserUrls[userID], URLObj{OriginalURL: originalURL, ShortURL: uuid})
-			r.mapRepo.URLs[uuid] = originalURL
+	uuid = GenUUID()
+	r.memoryRepo.Units = append(r.memoryRepo.Units, &Unit{
+		OriginalURL: originalURL,
+		ShortUUID:   uuid,
+		UserUUID:    userID,
+		IsDeleted:   false,
+	})
 
-			if r.File != nil {
-				err := writeURLInFile(r.File, uuid, originalURL)
-				if err != nil {
-					return "", err
-				}
-			}
-			break
+	if r.File != nil {
+		err := writeURLInFile(r.File, uuid, originalURL, userID)
+		if err != nil {
+			return "", err
 		}
 	}
 
 	return uuid, nil
 }
 
-type Event struct {
-	UUID string `json:"UUID"`
-	URL  string `json:"URL"`
+func (r *FileRepo) DeleteByUUID(uuid []string, userID string) {
+	r.memoryRepo.DeleteByUUID(uuid, userID)
 }
 
-func writeURLInFile(file *os.File, uuid string, url string) error {
+func writeURLInFile(file *os.File, uuid string, url string, userUUID string) error {
 	writer := bufio.NewWriter(file)
-	event := Event{
-		UUID: uuid,
-		URL:  url,
+	event := Unit{
+		OriginalURL: url,
+		ShortUUID:   uuid,
+		UserUUID:    userUUID,
+		IsDeleted:   false,
 	}
 	data, err := json.Marshal(event)
 	if err != nil {
@@ -135,14 +107,13 @@ func writeURLInFile(file *os.File, uuid string, url string) error {
 	return nil
 }
 
-func fillRepoFromFile() (*os.File, map[string]string, error) {
+func fillRepoFromFile() (*os.File, []*Unit, error) {
 	file, err := os.OpenFile(configs.Config.FileStoragePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
-
 	if err != nil {
 		file = nil
 	}
-	urls := make(map[string]string)
 
+	var units []*Unit
 	reader := bufio.NewReader(file)
 	for {
 		data, err := reader.ReadBytes('\n')
@@ -150,14 +121,14 @@ func fillRepoFromFile() (*os.File, map[string]string, error) {
 			break
 		}
 
-		event := Event{}
-		err = json.Unmarshal(data, &event)
+		unit := Unit{}
+		err = json.Unmarshal(data, &unit)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		urls[event.UUID] = event.URL
+		units = append(units, &unit)
 	}
 
-	return file, urls, nil
+	return file, units, nil
 }

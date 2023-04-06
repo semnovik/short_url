@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	// iter14.
 	configs.InitFlags()
 
 	var db *sql.DB
@@ -24,7 +25,7 @@ func main() {
 
 		err = goose.Up(db, configs.Config.MigrationsDir, goose.WithAllowMissing())
 		if err != nil {
-			log.Print("Cannot make migrations!", err)
+			log.Print("Cannot make migrations: ", err)
 		}
 	}
 

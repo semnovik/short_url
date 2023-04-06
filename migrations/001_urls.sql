@@ -1,8 +1,9 @@
 -- +goose Up
 CREATE TABLE urls (
-                      original_url text NOT NULL UNIQUE,
-                      short_url text NOT NULL UNIQUE,
-                      user_uuid text
+                      original_url TEXT NOT NULL UNIQUE,
+                      short_url TEXT NOT NULL UNIQUE,
+                      user_uuid TEXT,
+                      is_deleted BOOLEAN DEFAULT FALSE
 );
 
 -- +goose Down

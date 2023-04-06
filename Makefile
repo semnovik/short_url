@@ -1,5 +1,5 @@
 
-build-image:
+build:
 	- docker build -t short_url .
 
 up:

@@ -3,19 +3,21 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"io"
 	"net/http"
 	"short_url/configs"
 	"short_url/internal/repository"
+	"short_url/pkg"
 )
 
 type shorterSrv struct {
-	repo repository.URLRepo
+	repo repository.URLStorage
 }
 
-func NewShorterSrv(repo repository.URLRepo) *http.Server {
+func NewShorterSrv(repo repository.URLStorage) *http.Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.SetHeader("Content-Type", "application/json"))
@@ -29,6 +31,7 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 	router.Get("/api/user/urls", h.AllUserURLS)
 	router.Get("/ping", h.Ping)
 	router.Post("/api/shorten/batch", h.Batch)
+	router.Delete("/api/user/urls", h.DeleteURLs)
 
 	return &http.Server{Handler: router, Addr: configs.Config.ServerAddress}
 }
@@ -36,7 +39,12 @@ func NewShorterSrv(repo repository.URLRepo) *http.Server {
 func (h *shorterSrv) GetFullURL(w http.ResponseWriter, r *http.Request) {
 	urlID := chi.URLParam(r, "id")
 
-	url, err := h.repo.Get(urlID)
+	url, isDeleted, err := h.repo.Get(urlID)
+
+	if isDeleted {
+		w.WriteHeader(http.StatusGone)
+		return
+	}
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -83,7 +91,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 		userID = setNewUserToken(w)
 	}
 
-	req := RequestShorten{}
+	req := pkg.RequestShorten{}
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -101,7 +109,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusConflict)
 			shortenURL := configs.Config.BaseURL + "/" + uuid
 
-			respBody := ResponseShorten{Result: shortenURL}
+			respBody := pkg.ResponseShorten{Result: shortenURL}
 			response, _ := json.Marshal(respBody)
 			w.Write(response)
 			return
@@ -113,7 +121,7 @@ func (h *shorterSrv) Shorten(w http.ResponseWriter, r *http.Request) {
 
 	shortenURL := configs.Config.BaseURL + "/" + uuid
 
-	respBody := ResponseShorten{Result: shortenURL}
+	respBody := pkg.ResponseShorten{Result: shortenURL}
 	response, _ := json.Marshal(respBody)
 
 	w.WriteHeader(http.StatusCreated)
@@ -143,8 +151,14 @@ func (h *shorterSrv) Ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
-	var batch []RequestShortenBatch
-	var urls []ResponseShortenBatch
+	userID, isUserExist := checkUserExist(r, h.repo)
+
+	if !isUserExist {
+		userID = setNewUserToken(w)
+	}
+
+	var batch []pkg.RequestShortenBatch
+	var urls []pkg.ResponseShortenBatch
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -157,14 +171,36 @@ func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, part := range batch {
-		shortURL, err := h.repo.Add(part.OriginalID)
+		shortURL, err := h.repo.AddByUser(userID, part.OriginalID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		urls = append(urls, ResponseShortenBatch{CorrelationID: part.CorrelationID, ShortURL: configs.Config.BaseURL + "/" + shortURL})
+		urls = append(urls, pkg.ResponseShortenBatch{CorrelationID: part.CorrelationID, ShortURL: configs.Config.BaseURL + "/" + shortURL})
 	}
 
 	response, _ := json.Marshal(urls)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(response)
+}
+
+func (h *shorterSrv) DeleteURLs(w http.ResponseWriter, r *http.Request) {
+	userID, _ := checkUserExist(r, h.repo)
+
+	request, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var uuids []string
+	err = json.Unmarshal(request, &uuids)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	h.repo.DeleteByUUID(uuids, userID)
+
+	fmt.Print(userID)
+	w.WriteHeader(http.StatusAccepted)
 }
