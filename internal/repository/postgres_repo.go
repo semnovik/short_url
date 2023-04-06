@@ -20,26 +20,6 @@ func NewPostgresRepo(db *sql.DB) *PostgresRepo {
 	return &PostgresRepo{Conn: db}
 }
 
-func (r *PostgresRepo) Add(url string) (string, error) {
-	for {
-		uuid := GenUUID()
-
-		_, err := r.Conn.Exec(`
-			INSERT INTO urls (original_url, short_url)
-			VALUES ($1, $2)
-		`, url, uuid)
-		if err != nil {
-			return "", err
-		}
-
-		if errors.Is(err, ErrAlreadyExists) {
-			continue
-		}
-
-		return uuid, nil
-	}
-}
-
 func (r *PostgresRepo) Get(uuid string) (string, bool, error) {
 	var originalURL string
 	var isDeleted bool
