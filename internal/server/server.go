@@ -151,6 +151,12 @@ func (h *shorterSrv) Ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
+	userID, isUserExist := checkUserExist(r, h.repo)
+
+	if !isUserExist {
+		userID = setNewUserToken(w)
+	}
+
 	var batch []pkg.RequestShortenBatch
 	var urls []pkg.ResponseShortenBatch
 
@@ -165,7 +171,7 @@ func (h *shorterSrv) Batch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, part := range batch {
-		shortURL, err := h.repo.Add(part.OriginalID)
+		shortURL, err := h.repo.AddByUser(userID, part.OriginalID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

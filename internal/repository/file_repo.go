@@ -30,22 +30,7 @@ func NewFileRepo() *FileRepo {
 }
 
 func (r *FileRepo) Add(url string) (string, error) {
-	for {
-		uuid := GenUUID()
-		if _, ok := r.mapRepo.URLs[uuid]; !ok {
-
-			// Если есть интеграция с файлом, то пишем еще и в файл
-			if r.File != nil {
-				err := writeURLInFile(r.File, uuid, url)
-				if err != nil {
-					return "", err
-				}
-			}
-
-			r.mapRepo.URLs[uuid] = url
-			return uuid, nil
-		}
-	}
+	return r.mapRepo.Add(url)
 }
 
 func (r *FileRepo) Get(uuid string) (string, bool, error) {
@@ -89,7 +74,7 @@ func (r *FileRepo) AddByUser(userID, originalURL string) (string, error) {
 			r.mapRepo.URLs[uuid] = originalURL
 
 			if r.File != nil {
-				err := writeURLInFile(r.File, uuid, originalURL)
+				err := writeURLInFile(r.File, uuid, originalURL, userID)
 				if err != nil {
 					return "", err
 				}
@@ -106,15 +91,17 @@ func (r *FileRepo) DeleteByUUID(uuid []string, userID string) {
 }
 
 type Event struct {
-	UUID string `json:"UUID"`
-	URL  string `json:"URL"`
+	UUID     string `json:"UUID"`
+	URL      string `json:"URL"`
+	UserUUID string `json:"UserUUID"`
 }
 
-func writeURLInFile(file *os.File, uuid string, url string) error {
+func writeURLInFile(file *os.File, uuid string, url string, userUUID string) error {
 	writer := bufio.NewWriter(file)
 	event := Event{
-		UUID: uuid,
-		URL:  url,
+		UUID:     uuid,
+		URL:      url,
+		UserUUID: userUUID,
 	}
 	data, err := json.Marshal(event)
 	if err != nil {
